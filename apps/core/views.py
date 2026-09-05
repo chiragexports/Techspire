@@ -83,6 +83,11 @@ def terms_view(request):
     return render(request, 'core/terms.html', {'title': 'Terms & Conditions - TECHSPIRE Learning'})
 
 
+def refund_policy_view(request):
+    return render(request, 'core/refund_policy.html', {'title': 'Refund and Cancellation Policy - TECHSPIRE Learning'})
+
+
+
 def newsletter_subscribe(request):
     if request.method == 'POST':
         form = NewsletterForm(request.POST)

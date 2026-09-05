@@ -11,5 +11,8 @@ urlpatterns = [
     path('faq/', views.faq_view, name='faqs'),
     path('privacy-policy/', views.privacy_view, name='privacy'),
     path('terms-and-conditions/', views.terms_view, name='terms'),
+    path('refund-and-cancellation-policy/', views.refund_policy_view, name='refund_policy'),
+    path('refund-policy/', views.refund_policy_view, name='refunds'),
     path('newsletter-subscribe/', views.newsletter_subscribe, name='newsletter_subscribe'),
+
 ]

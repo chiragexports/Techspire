@@ -155,6 +155,7 @@
             <li><a href="{% url 'core:about' %}"><i class="fas fa-chevron-right me-1 text-primary"></i> About TECHSPIRE</a></li>
             <li><a href="{% url 'certificates:verify_public' %}"><i class="fas fa-chevron-right me-1 text-primary"></i> Verify Certificate</a></li>
             <li><a href="{% url 'core:faq' %}"><i class="fas fa-chevron-right me-1 text-primary"></i> Help & FAQs</a></li>
+            <li><a href="{% url 'core:refund_policy' %}"><i class="fas fa-chevron-right me-1 text-primary"></i> Refund Policy</a></li>
             <li><a href="{% url 'core:contact' %}"><i class="fas fa-chevron-right me-1 text-primary"></i> Contact Us</a></li>
           </ul>
         </div>
@@ -205,9 +206,12 @@
           <span>•</span>
           <a href="{% url 'core:terms' %}" class="text-white-50">Terms & Conditions</a>
           <span>•</span>
+          <a href="{% url 'core:refund_policy' %}" class="text-white-50">Refund Policy</a>
+          <span>•</span>
           <a href="{% url 'certificates:verify_public' %}" class="text-white-50">Public Verification</a>
         </div>
       </div>
+
     </div>
   </footer>
 
