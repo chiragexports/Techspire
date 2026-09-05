@@ -11,8 +11,9 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security settings
-SECRET_KEY = config('SECRET_KEY', default='django-insecure-techspire-learning-key-2026-production-ready')
+SECRET_KEY = os.environ.get('SECRET_KEY') or config('SECRET_KEY', default='') or 'django-insecure-techspire-learning-key-2026-production-ready-secret-key-indore'
 DEBUG = True
+
 ALLOWED_HOSTS = ['*']
 
 
