@@ -1,0 +1,160 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ lesson.title }} - {{ course.title }} - TECHSPIRE Classroom{% endblock %}
+
+{% block content %}
+<!-- LMS Learning Interface Top Bar -->
+<div class="bg-dark text-white py-2 px-3 border-bottom" style="background-color: #0F172A !important;">
+  <div class="container-fluid d-flex justify-content-between align-items-center">
+    <div class="d-flex align-items-center gap-3">
+      <a href="{% url 'dashboard:student_dashboard' %}" class="btn btn-outline-light btn-sm rounded-pill">
+        <i class="fas fa-arrow-left me-1"></i> Dashboard
+      </a>
+      <h6 class="mb-0 fw-bold d-none d-md-inline text-white-50">
+        {{ course.title }}
+      </h6>
+    </div>
+
+    <!-- Progress Indicator -->
+    <div class="d-flex align-items-center gap-3">
+      <div class="d-none d-sm-block text-end">
+        <div class="small fw-bold">{{ enrollment.progress_percentage }}% Complete</div>
+        <div class="text-white-50 small">{{ enrollment.completed_lessons_count }}/{{ enrollment.total_lessons }} Lessons</div>
+      </div>
+      <div class="progress bg-secondary" style="width: 120px; height: 8px;">
+        <div class="progress-bar bg-success progress-bar-striped progress-bar-animated" role="progressbar" style="width: {{ enrollment.progress_percentage }}%;"></div>
+      </div>
+      {% if associated_quiz %}
+        <a href="{% url 'quizzes:quiz_detail' quiz_id=associated_quiz.id %}" class="btn btn-warning btn-sm fw-bold rounded-pill">
+          <i class="fas fa-tasks me-1"></i> Final Quiz
+        </a>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<!-- LMS Classroom Split Layout -->
+<div class="lms-wrapper">
+  <!-- Left Sidebar: Course Syllabus & Checklist -->
+  <aside class="lms-sidebar">
+    <div class="p-3 bg-light border-bottom">
+      <h6 class="fw-bold mb-1 text-dark">Course Curriculum</h6>
+      <small class="text-muted">{{ course.modules.count }} Modules • {{ all_lessons|length }} Lessons</small>
+    </div>
+
+    <div class="accordion accordion-flush" id="lmsCurriculumAccordion">
+      {% for mod in modules %}
+        <div class="accordion-item border-0">
+          <h2 class="accordion-header" id="lmsModHeader{{ mod.id }}">
+            <button class="accordion-button bg-light fw-bold text-dark py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#lmsModCollapse{{ mod.id }}" aria-expanded="true">
+              <small class="text-uppercase text-primary me-2">M{{ mod.order }}</small> {{ mod.title }}
+            </button>
+          </h2>
+          <div id="lmsModCollapse{{ mod.id }}" class="accordion-collapse collapse show">
+            <div class="accordion-body p-0">
+              <div class="list-group list-group-flush">
+                {% for l in mod.lessons.all %}
+                  <a href="{% url 'enrollments:lesson_view' course_slug=course.slug lesson_id=l.id %}" class="lms-lesson-item text-decoration-none {% if l.id == lesson.id %}active{% endif %}">
+                    {% if l.id in completed_lesson_ids %}
+                      <i class="fas fa-check-circle text-success fs-6"></i>
+                    {% else %}
+                      <i class="far fa-circle text-muted fs-6"></i>
+                    {% endif %}
+                    
+                    <div class="flex-grow-1 small">
+                      <div class="fw-semibold">{{ l.title }}</div>
+                      <span class="text-muted" style="font-size: 0.75rem;">
+                        {% if l.lesson_type == 'video' %}<i class="fas fa-play me-1"></i> Video{% else %}<i class="fas fa-file-alt me-1"></i> Reading{% endif %} • {{ l.duration_minutes }}m
+                      </span>
+                    </div>
+                  </a>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </aside>
+
+  <!-- Right Pane: Lesson Content & Video Player -->
+  <main class="lms-content-pane">
+    <div class="container-fluid" style="max-width: 950px;">
+      <!-- Lesson Card -->
+      <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <span class="badge bg-primary-subtle text-primary fw-bold px-3 py-2 rounded-pill">
+            {{ lesson.module.title }}
+          </span>
+          <span class="text-muted small">
+            <i class="fas fa-clock me-1"></i> {{ lesson.duration_minutes }} Minutes
+          </span>
+        </div>
+
+        <h2 class="fw-bold text-dark mb-4">{{ lesson.title }}</h2>
+
+        <!-- Video Player (if video url provided) -->
+        {% if lesson.video_url %}
+          <div class="ratio ratio-16x9 mb-4 rounded-3 overflow-hidden shadow-sm bg-dark">
+            <iframe src="{{ lesson.video_url }}" title="{{ lesson.title }}" allowfullscreen></iframe>
+          </div>
+        {% endif %}
+
+        <!-- Lesson Body Text / Tutorial Content -->
+        {% if lesson.content %}
+          <div class="lesson-reading-content text-dark mb-4" style="line-height: 1.8;">
+            {{ lesson.content|linebreaks }}
+          </div>
+        {% endif %}
+
+        <!-- Downloadable Resources -->
+        {% if lesson.downloadable_file %}
+          <div class="alert alert-info d-flex align-items-center justify-content-between mt-3 rounded-3">
+            <div>
+              <i class="fas fa-paperclip me-2"></i>
+              <strong>Downloadable Resource:</strong> Course Code & Notes
+            </div>
+            <a href="{{ lesson.downloadable_file.url }}" class="btn btn-primary btn-sm fw-bold" download>
+              <i class="fas fa-download me-1"></i> Download File
+            </a>
+          </div>
+        {% endif %}
+
+        <!-- Lesson Action / Completion Bar -->
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-center gap-3 pt-4 border-top mt-4">
+          <div>
+            {% if progress.is_completed %}
+              <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-bold">
+                <i class="fas fa-check-circle me-1"></i> Completed
+              </span>
+            {% else %}
+              <span class="badge bg-warning-subtle text-warning-emphasis px-3 py-2 rounded-pill fw-bold">
+                <i class="fas fa-spinner fa-spin me-1"></i> In Progress
+              </span>
+            {% endif %}
+          </div>
+
+          <div class="d-flex gap-2">
+            {% if prev_lesson %}
+              <a href="{% url 'enrollments:lesson_view' course_slug=course.slug lesson_id=prev_lesson.id %}" class="btn btn-outline-secondary rounded-pill px-3">
+                <i class="fas fa-chevron-left me-1"></i> Previous
+              </a>
+            {% endif %}
+
+            <form action="{% url 'enrollments:mark_complete' course_slug=course.slug lesson_id=lesson.id %}" method="POST" class="d-inline">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-success fw-bold rounded-pill px-4">
+                {% if next_lesson %}
+                  Mark Complete & Next <i class="fas fa-chevron-right ms-1"></i>
+                {% else %}
+                  Complete Course <i class="fas fa-award ms-1"></i>
+                {% endif %}
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+{% endblock %}

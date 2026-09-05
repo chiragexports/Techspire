@@ -1,0 +1,396 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="ts-hero">
+  <div class="container position-relative" style="z-index: 2;">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-7">
+        <div class="tagline-badge">
+          <i class="fas fa-sparkles text-warning"></i> {{ site_setting.tagline|default:"Learn Today, Lead Tomorrow." }}
+        </div>
+        <h1 class="display-4 fw-extrabold mb-3">
+          {{ site_setting.hero_title|default:"Master High-Demand Tech Skills & Transform Your Career" }}
+        </h1>
+        <p class="lead mb-4">
+          {{ site_setting.hero_subtitle|default:"Industry-aligned hands-on courses in Web Development, Python, AI Tools, and Data Analytics. Earn verified certificates recognized by top employers." }}
+        </p>
+
+        <div class="d-flex flex-wrap gap-3 mb-4">
+          <a href="{% url 'courses:course_list' %}" class="btn btn-ts-primary btn-lg">
+            <i class="fas fa-play-circle me-2"></i> Explore All Courses
+          </a>
+          <a href="{% url 'certificates:verify_public' %}" class="btn btn-ts-outline btn-lg">
+            <i class="fas fa-search-check me-2"></i> Verify a Certificate
+          </a>
+        </div>
+
+        <div class="d-flex align-items-center gap-4 pt-3 border-top border-secondary border-opacity-25 text-white-50 small">
+          <div><i class="fas fa-check-circle text-success me-1"></i> Lifetime Access</div>
+          <div><i class="fas fa-check-circle text-success me-1"></i> Verifiable Certificates</div>
+          <div><i class="fas fa-check-circle text-success me-1"></i> Hands-on Quizzes</div>
+        </div>
+      </div>
+
+      <div class="col-lg-5">
+        <div class="card shadow-lg border-0 rounded-4 overflow-hidden text-dark bg-white p-4">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="badge bg-primary-subtle text-primary fw-bold px-3 py-2 rounded-pill">
+              <i class="fas fa-fire me-1 text-danger"></i> Popular LMS Platform
+            </span>
+            <span class="text-warning fw-bold">
+              <i class="fas fa-star"></i> 4.9/5 Rating
+            </span>
+          </div>
+          <h4 class="fw-bold text-navy mb-2">Start Learning Today</h4>
+          <p class="text-muted small mb-4">Join hundreds of learners in Indore and across India building real coding and analytical skills.</p>
+
+          <div class="d-flex flex-column gap-3">
+            <div class="p-3 bg-light rounded-3 d-flex align-items-center gap-3 border">
+              <div class="bg-primary text-white rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                <i class="fas fa-laptop-code"></i>
+              </div>
+              <div>
+                <h6 class="mb-0 fw-bold">Self-Paced Learning</h6>
+                <small class="text-muted">High-definition lessons & structured tutorials</small>
+              </div>
+            </div>
+
+            <div class="p-3 bg-light rounded-3 d-flex align-items-center gap-3 border">
+              <div class="bg-success text-white rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                <i class="fas fa-tasks"></i>
+              </div>
+              <div>
+                <h6 class="mb-0 fw-bold">Practical Quizzes</h6>
+                <small class="text-muted">Instant score calculations and review logic</small>
+              </div>
+            </div>
+
+            <div class="p-3 bg-light rounded-3 d-flex align-items-center gap-3 border">
+              <div class="bg-warning text-dark rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                <i class="fas fa-award"></i>
+              </div>
+              <div>
+                <h6 class="mb-0 fw-bold">Online Verified PDF Certificate</h6>
+                <small class="text-muted">Unique ID and QR code verification portal</small>
+              </div>
+            </div>
+          </div>
+
+          <a href="{% url 'accounts:register' %}" class="btn btn-dark w-100 mt-4 fw-bold py-2 rounded-3">
+            Create Free Student Account <i class="fas fa-arrow-right ms-2"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Stats Counter Banner -->
+<section class="py-4 bg-white border-bottom shadow-sm">
+  <div class="container">
+    <div class="row text-center g-4">
+      <div class="col-md-3 col-6">
+        <div class="fs-2 fw-extrabold text-primary">{{ total_students }}+</div>
+        <div class="text-muted small fw-semibold">Active Learners</div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="fs-2 fw-extrabold text-success">100%</div>
+        <div class="text-muted small fw-semibold">Practical Curriculum</div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="fs-2 fw-extrabold text-warning">24/7</div>
+        <div class="text-muted small fw-semibold">Online Course Access</div>
+      </div>
+      <div class="col-md-3 col-6">
+        <div class="fs-2 fw-extrabold text-info">Instant</div>
+        <div class="text-muted small fw-semibold">Certificate Verification</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Popular Categories Grid -->
+<section class="py-5">
+  <div class="container">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4">
+      <div>
+        <span class="section-tag">Browse by Subject</span>
+        <h2 class="section-title">Explore Top Learning Paths</h2>
+      </div>
+      <a href="{% url 'courses:course_list' %}" class="btn btn-outline-primary rounded-pill px-4 fw-semibold mt-3 mt-md-0">
+        View All Paths <i class="fas fa-arrow-right ms-1"></i>
+      </a>
+    </div>
+
+    <div class="row g-4">
+      {% for cat in categories %}
+        <div class="col-lg-3 col-md-4 col-sm-6">
+          <a href="{{ cat.get_absolute_url }}" class="cat-card text-decoration-none">
+            <div class="cat-icon-box">
+              <i class="{{ cat.icon_class }}"></i>
+            </div>
+            <h5 class="fw-bold mb-1 text-dark">{{ cat.name }}</h5>
+            <p class="text-muted small mb-3 flex-grow-1">{{ cat.description|truncatewords:10 }}</p>
+            <div class="d-flex justify-content-between align-items-center text-primary fw-semibold small">
+              <span>{{ cat.courses_count }} Course{{ cat.courses_count|pluralize }}</span>
+              <i class="fas fa-arrow-right"></i>
+            </div>
+          </a>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Featured Courses Section -->
+<section class="py-5 bg-light">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="section-tag">Hands-on Learning</span>
+      <h2 class="section-title">Featured Industry Courses</h2>
+      <p class="text-muted max-w-700 mx-auto">
+        Learn with step-by-step guidance, real-world source codes, interactive quizzes, and earn verifiable certificates.
+      </p>
+    </div>
+
+    <div class="row g-4">
+      {% for course in featured_courses %}
+        <div class="col-lg-4 col-md-6">
+          <div class="ts-card h-100 d-flex flex-column">
+            <div class="course-card-thumb">
+              <i class="{{ course.category.icon_class }}"></i>
+              <span class="badge-level">{{ course.get_level_display }}</span>
+              <span class="badge-free">{% if course.is_free %}FREE{% else %}₹{{ course.price }}{% endif %}</span>
+            </div>
+            <div class="p-4 d-flex flex-column flex-grow-1">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="text-primary small fw-bold">{{ course.category.name }}</span>
+                <span class="text-warning small fw-semibold"><i class="fas fa-star"></i> {{ course.average_rating }}</span>
+              </div>
+              <h5 class="fw-bold text-dark mb-2">
+                <a href="{{ course.get_absolute_url }}" class="text-dark text-decoration-none hover-primary">
+                  {{ course.title }}
+                </a>
+              </h5>
+              <p class="text-muted small mb-3 flex-grow-1">
+                {{ course.short_description|truncatewords:15 }}
+              </p>
+
+              <div class="d-flex justify-content-between text-muted small py-2 border-top border-bottom mb-3">
+                <span><i class="fas fa-book-open me-1 text-primary"></i> {{ course.total_lessons_count }} Lessons</span>
+                <span><i class="fas fa-clock me-1 text-secondary"></i> {{ course.duration_hours }}h Total</span>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center mt-auto">
+                <div class="small text-muted">
+                  <i class="fas fa-user-tie text-secondary me-1"></i> {{ course.instructor_name }}
+                </div>
+                <a href="{{ course.get_absolute_url }}" class="btn btn-sm btn-primary px-3 rounded-pill fw-semibold">
+                  View Course
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <div class="text-center mt-5">
+      <a href="{% url 'courses:course_list' %}" class="btn btn-outline-dark btn-lg rounded-pill px-5 fw-bold">
+        Browse All {{ total_courses }}+ Courses
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- How It Works Section -->
+<section class="py-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="section-tag">Workflow</span>
+      <h2 class="section-title">How TECHSPIRE Learning Works</h2>
+      <p class="text-muted">A clear 4-step journey from enrolling to getting certified</p>
+    </div>
+
+    <div class="row g-4 text-center">
+      <div class="col-md-3">
+        <div class="p-4 bg-white border rounded-4 shadow-sm h-100">
+          <div class="fs-1 text-primary mb-3"><i class="fas fa-user-plus"></i></div>
+          <h5 class="fw-bold">1. Create Account</h5>
+          <p class="text-muted small">Sign up in seconds and gain full access to your student dashboard and courses.</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="p-4 bg-white border rounded-4 shadow-sm h-100">
+          <div class="fs-1 text-info mb-3"><i class="fas fa-play-circle"></i></div>
+          <h5 class="fw-bold">2. Learn Through Lessons</h5>
+          <p class="text-muted small">Study modules, watch videos, read tutorials, and track your completion progress in real time.</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="p-4 bg-white border rounded-4 shadow-sm h-100">
+          <div class="fs-1 text-warning mb-3"><i class="fas fa-clipboard-check"></i></div>
+          <h5 class="fw-bold">3. Pass the Quiz</h5>
+          <p class="text-muted small">Take the interactive MCQ assessment to evaluate and validate your practical mastery.</p>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="p-4 bg-white border rounded-4 shadow-sm h-100">
+          <div class="fs-1 text-success mb-3"><i class="fas fa-file-pdf"></i></div>
+          <h5 class="fw-bold">4. Download Certificate</h5>
+          <p class="text-muted small">Receive an authentic PDF certificate with QR code and share your verifiable credential.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Why Choose TECHSPIRE -->
+<section class="py-5 bg-dark text-white position-relative" style="background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%);">
+  <div class="container py-4">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6">
+        <span class="text-warning fw-bold text-uppercase small letter-spacing-1">Why Choose TECHSPIRE</span>
+        <h2 class="display-6 fw-bold text-white mb-4">Empowering Career Growth with Practical Tech Training</h2>
+        <p class="text-white-50 mb-4">
+          TECHSPIRE Learning is dedicated to providing high-quality, industry-relevant technology education designed to help students transition into lucrative tech careers.
+        </p>
+
+        <div class="d-flex flex-column gap-3">
+          <div class="d-flex align-items-start gap-3">
+            <div class="bg-primary text-white rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+              <i class="fas fa-check"></i>
+            </div>
+            <div>
+              <h6 class="fw-bold mb-1">Authentic & Verifiable Credentials</h6>
+              <small class="text-white-50">Every certificate features a tamper-proof verification ID and direct QR code lookup.</small>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-start gap-3">
+            <div class="bg-primary text-white rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+              <i class="fas fa-check"></i>
+            </div>
+            <div>
+              <h6 class="fw-bold mb-1">Industry Expert Curriculum</h6>
+              <small class="text-white-50">Curriculum structured around current hiring demands in web development, Python, and analytics.</small>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-start gap-3">
+            <div class="bg-primary text-white rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 32px; height: 32px;">
+              <i class="fas fa-check"></i>
+            </div>
+            <div>
+              <h6 class="fw-bold mb-1">Indore Academic Center & Online Reach</h6>
+              <small class="text-white-50">Headquartered in Indore, Madhya Pradesh, serving aspiring professionals across India.</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="p-4 bg-white bg-opacity-10 rounded-4 border border-white border-opacity-10 backdrop-blur">
+          <h4 class="fw-bold text-white mb-3"><i class="fas fa-certificate text-warning me-2"></i> Sample Verified Certificate</h4>
+          <div class="cert-preview-frame bg-white text-dark text-center p-4 rounded-3 shadow">
+            <div class="small fw-bold text-primary">TECHSPIRE LEARNING</div>
+            <div class="small text-muted">Certificate of Completion</div>
+            <div class="fs-4 fw-extrabold text-dark my-2">Rahul Sharma</div>
+            <div class="small text-muted">has completed</div>
+            <div class="fw-bold text-primary">Full-Stack Web Development with Django</div>
+            <div class="d-flex justify-content-between align-items-center mt-3 pt-2 border-top small">
+              <span class="text-muted">ID: TS-2026-DEMO</span>
+              <span class="badge bg-success">VERIFIED</span>
+            </div>
+          </div>
+          <div class="text-center mt-3">
+            <a href="{% url 'certificates:verify_public' %}?cert_id=TS-2026-DEMO" class="text-warning text-decoration-none small fw-bold">
+              <i class="fas fa-external-link-alt me-1"></i> Test Online Certificate Verification Portal &rarr;
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Student Testimonials -->
+<section class="py-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <span class="section-tag">Success Stories</span>
+      <h2 class="section-title">What Our Students Say</h2>
+    </div>
+
+    <div class="row g-4">
+      {% for t in testimonials %}
+        <div class="col-md-4">
+          <div class="card h-100 p-4 border rounded-4 shadow-sm">
+            <div class="text-warning mb-3">
+              {% for i in "12345"|make_list %}
+                <i class="fas fa-star"></i>
+              {% endfor %}
+            </div>
+            <p class="text-muted fst-italic mb-4">"{{ t.content }}"</p>
+            <div class="mt-auto d-flex align-items-center gap-3">
+              <div class="bg-primary-subtle text-primary fw-bold rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 44px; height: 44px;">
+                {{ t.name|slice:":1" }}
+              </div>
+              <div>
+                <h6 class="mb-0 fw-bold">{{ t.name }}</h6>
+                <small class="text-muted">{{ t.role }}</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- FAQ Accordion -->
+<section class="py-5 bg-light">
+  <div class="container" style="max-width: 800px;">
+    <div class="text-center mb-5">
+      <span class="section-tag">Got Questions?</span>
+      <h2 class="section-title">Frequently Asked Questions</h2>
+    </div>
+
+    <div class="accordion shadow-sm rounded-4 overflow-hidden" id="faqAccordion">
+      {% for faq in faqs %}
+        <div class="accordion-item border-0 border-bottom">
+          <h2 class="accordion-header" id="heading{{ faq.id }}">
+            <button class="accordion-button {% if not forloop.first %}collapsed{% endif %} fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ faq.id }}" aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}">
+              {{ faq.question }}
+            </button>
+          </h2>
+          <div id="collapse{{ faq.id }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" data-bs-parent="#faqAccordion">
+            <div class="accordion-body text-muted">
+              {{ faq.answer }}
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+    
+    <div class="text-center mt-4">
+      <a href="{% url 'core:faq' %}" class="btn btn-outline-secondary rounded-pill px-4">View All FAQs</a>
+    </div>
+  </div>
+</section>
+
+<!-- Call To Action -->
+<section class="py-5 bg-primary text-white text-center">
+  <div class="container py-3">
+    <h2 class="display-6 fw-bold mb-3">Ready to Accelerate Your Tech Career?</h2>
+    <p class="lead mb-4 text-white-50 mx-auto" style="max-width: 600px;">
+      Join TECHSPIRE Learning today. Master in-demand programming, data, and AI skills with verified certification.
+    </p>
+    <a href="{% url 'accounts:register' %}" class="btn btn-warning btn-lg fw-bold text-dark px-5 rounded-pill shadow">
+      Get Started for Free Today
+    </a>
+  </div>
+</section>
+{% endblock %}

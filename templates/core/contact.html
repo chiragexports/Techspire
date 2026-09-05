@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+
+{% block title %}Contact Us - TECHSPIRE Learning{% endblock %}
+
+{% block content %}
+<div class="bg-dark text-white py-5" style="background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%);">
+  <div class="container text-center py-4">
+    <span class="badge bg-warning text-dark fw-bold px-3 py-2 rounded-pill mb-3">GET IN TOUCH</span>
+    <h1 class="display-5 fw-bold">We'd Love to Hear From You</h1>
+    <p class="lead text-white-50 mx-auto" style="max-width: 600px;">
+      Have a question about courses, enterprise training, or certificates? Our team in Indore is ready to assist.
+    </p>
+  </div>
+</div>
+
+<section class="py-5">
+  <div class="container">
+    <div class="row g-5">
+      <!-- Contact Info Cards -->
+      <div class="col-lg-5">
+        <h3 class="fw-bold mb-4">Contact Information</h3>
+        <p class="text-muted mb-4">
+          Connect with our academic counselors and technical team for course inquiries, verification questions, and partnership opportunities.
+        </p>
+
+        <div class="d-flex flex-column gap-4">
+          <div class="d-flex align-items-start gap-3">
+            <div class="bg-primary-subtle text-primary rounded-circle p-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+              <i class="fas fa-map-marker-alt fs-5"></i>
+            </div>
+            <div>
+              <h6 class="fw-bold mb-1">Our Registered Office</h6>
+              <p class="text-muted small mb-0">{{ business_info.ADDRESS }}</p>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-start gap-3">
+            <div class="bg-success-subtle text-success rounded-circle p-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+              <i class="fas fa-phone-alt fs-5"></i>
+            </div>
+            <div>
+              <h6 class="fw-bold mb-1">Call / WhatsApp Support</h6>
+              <p class="text-muted small mb-0">{{ business_info.PHONE }}</p>
+              <small class="text-muted">Monday - Saturday, 9:00 AM - 7:00 PM IST</small>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-start gap-3">
+            <div class="bg-info-subtle text-info rounded-circle p-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+              <i class="fas fa-envelope fs-5"></i>
+            </div>
+            <div>
+              <h6 class="fw-bold mb-1">Email Support</h6>
+              <p class="text-muted small mb-0">{{ business_info.EMAIL }}</p>
+              <small class="text-muted">Responses typically within 24 hours</small>
+            </div>
+          </div>
+
+          <div class="d-flex align-items-start gap-3">
+            <div class="bg-warning-subtle text-warning-emphasis rounded-circle p-3 d-flex align-items-center justify-content-center" style="width: 48px; height: 48px;">
+              <i class="fas fa-certificate fs-5"></i>
+            </div>
+            <div>
+              <h6 class="fw-bold mb-1">Enterprise Registration</h6>
+              <p class="text-muted small mb-0">Udyam: {{ business_info.UDYAM }}</p>
+              <p class="text-muted small mb-0">GSTIN: {{ business_info.GSTIN }}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Form -->
+      <div class="col-lg-7">
+        <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5 bg-white">
+          <h4 class="fw-bold mb-2">Send Us a Message</h4>
+          <p class="text-muted small mb-4">Fill out the form below and we will get back to you promptly.</p>
+
+          <form method="POST">
+            {% csrf_token %}
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Your Name *</label>
+                {{ form.name }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Email Address *</label>
+                {{ form.email }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Phone / WhatsApp</label>
+                {{ form.phone }}
+              </div>
+              <div class="col-md-6">
+                <label class="form-label small fw-bold">Subject *</label>
+                {{ form.subject }}
+              </div>
+              <div class="col-12">
+                <label class="form-label small fw-bold">Message *</label>
+                {{ form.message }}
+              </div>
+              <div class="col-12 mt-4">
+                <button type="submit" class="btn btn-ts-primary w-100 py-3 fw-bold">
+                  <i class="fas fa-paper-plane me-2"></i> Submit Inquiry
+                </button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

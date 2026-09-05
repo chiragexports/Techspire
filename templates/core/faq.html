@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}Frequently Asked Questions - TECHSPIRE Learning{% endblock %}
+
+{% block content %}
+<div class="bg-dark text-white py-5" style="background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%);">
+  <div class="container text-center py-4">
+    <span class="badge bg-warning text-dark fw-bold px-3 py-2 rounded-pill mb-3">HELP & SUPPORT</span>
+    <h1 class="display-5 fw-bold">Frequently Asked Questions</h1>
+    <p class="lead text-white-50 mx-auto" style="max-width: 600px;">
+      Find quick answers to common questions about courses, learning paths, quizzes, and certificates.
+    </p>
+  </div>
+</div>
+
+<section class="py-5">
+  <div class="container" style="max-width: 900px;">
+    <div class="accordion shadow-sm rounded-4 overflow-hidden" id="fullFaqAccordion">
+      {% for faq in faqs %}
+        <div class="accordion-item border-0 border-bottom">
+          <h2 class="accordion-header" id="heading{{ faq.id }}">
+            <button class="accordion-button {% if not forloop.first %}collapsed{% endif %} fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ faq.id }}" aria-expanded="{% if forloop.first %}true{% else %}false{% endif %}">
+              <span class="badge bg-primary-subtle text-primary me-3 text-uppercase" style="font-size: 0.7rem;">{{ faq.category }}</span>
+              {{ faq.question }}
+            </button>
+          </h2>
+          <div id="collapse{{ faq.id }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" data-bs-parent="#fullFaqAccordion">
+            <div class="accordion-body text-muted">
+              {{ faq.answer }}
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="p-4 text-center text-muted">No FAQs found.</div>
+      {% endfor %}
+    </div>
+
+    <!-- Need Help Box -->
+    <div class="card mt-5 border-0 bg-primary text-white p-4 rounded-4 shadow-sm text-center">
+      <h4 class="fw-bold mb-2">Still have questions?</h4>
+      <p class="text-white-50 mb-3">Reach out to our support team directly. We are happy to help you select the right learning track.</p>
+      <div>
+        <a href="{% url 'core:contact' %}" class="btn btn-warning fw-bold text-dark px-4 rounded-pill">Contact Academic Support</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

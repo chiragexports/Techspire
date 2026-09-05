@@ -1,0 +1,441 @@
+/* ==========================================================================
+   TECHSPIRE Learning - Design System & Stylesheet
+   Theme: Royal Indigo, Ocean Blue, Amber Gold, Clean Slate
+   ========================================================================== */
+
+:root {
+  --ts-primary: #1E3A8A;       /* Royal Blue */
+  --ts-primary-dark: #0F172A;  /* Midnight Navy */
+  --ts-primary-light: #3B82F6; /* Sky Blue */
+  --ts-accent: #D97706;        /* Warm Gold / Amber */
+  --ts-accent-hover: #B45309;
+  --ts-teal: #0D9488;          /* Vibrant Emerald */
+  --ts-bg-light: #F8FAFC;      /* Crisp Off-White */
+  --ts-card-bg: #FFFFFF;
+  --ts-text-main: #1E293B;     /* Slate 800 */
+  --ts-text-muted: #64748B;    /* Slate 500 */
+  --ts-border: #E2E8F0;
+  --ts-radius-sm: 8px;
+  --ts-radius-md: 12px;
+  --ts-radius-lg: 16px;
+  --ts-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.05), 0 1px 2px rgba(0, 0, 0, 0.03);
+  --ts-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.04);
+  --ts-shadow-lg: 0 10px 25px -3px rgba(15, 23, 42, 0.08), 0 4px 6px -4px rgba(15, 23, 42, 0.03);
+  --ts-shadow-glow: 0 0 20px rgba(59, 130, 246, 0.15);
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  color: var(--ts-text-main);
+  background-color: var(--ts-bg-light);
+  line-height: 1.6;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+/* Typography Enhancements */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 700;
+  color: var(--ts-primary-dark);
+  letter-spacing: -0.02em;
+}
+
+a {
+  color: var(--ts-primary-light);
+  text-decoration: none;
+  transition: all 0.2s ease-in-out;
+}
+
+a:hover {
+  color: var(--ts-primary);
+}
+
+/* Navbar */
+.ts-navbar {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--ts-border);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+  padding: 0.75rem 0;
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+}
+
+.ts-brand {
+  font-weight: 800;
+  font-size: 1.45rem;
+  letter-spacing: -0.03em;
+  color: var(--ts-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.ts-brand span {
+  color: var(--ts-accent);
+}
+
+.ts-brand-badge {
+  font-size: 0.65rem;
+  background: #EFF6FF;
+  color: #1D4ED8;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border: 1px solid #DBEAFE;
+}
+
+.nav-link {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #334155 !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.nav-link:hover, .nav-link.active {
+  color: var(--ts-primary) !important;
+  background-color: #F1F5F9;
+}
+
+/* Hero Section */
+.ts-hero {
+  background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #1E40AF 100%);
+  color: #FFFFFF;
+  padding: 5rem 0 4.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.ts-hero::before {
+  content: "";
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.25) 0%, rgba(0, 0, 0, 0) 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.ts-hero h1 {
+  color: #FFFFFF;
+  font-size: 3rem;
+  font-weight: 800;
+  line-height: 1.15;
+}
+
+.ts-hero .tagline-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1rem;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 30px;
+  color: #FCD34D;
+  font-weight: 700;
+  font-size: 0.85rem;
+  letter-spacing: 0.03em;
+  margin-bottom: 1.5rem;
+  backdrop-filter: blur(5px);
+}
+
+.ts-hero p {
+  color: #E2E8F0;
+  font-size: 1.2rem;
+  max-width: 620px;
+}
+
+/* Buttons */
+.btn-ts-primary {
+  background-color: var(--ts-accent);
+  border-color: var(--ts-accent);
+  color: #FFFFFF;
+  font-weight: 700;
+  padding: 0.7rem 1.6rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25);
+  transition: all 0.25s ease;
+}
+
+.btn-ts-primary:hover {
+  background-color: var(--ts-accent-hover);
+  border-color: var(--ts-accent-hover);
+  color: #FFFFFF;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(217, 119, 6, 0.35);
+}
+
+.btn-ts-outline {
+  background: transparent;
+  border: 2px solid #FFFFFF;
+  color: #FFFFFF;
+  font-weight: 700;
+  padding: 0.65rem 1.5rem;
+  border-radius: 10px;
+  transition: all 0.25s ease;
+}
+
+.btn-ts-outline:hover {
+  background: #FFFFFF;
+  color: var(--ts-primary-dark);
+  transform: translateY(-2px);
+}
+
+.btn-ts-navy {
+  background-color: var(--ts-primary);
+  border-color: var(--ts-primary);
+  color: #FFFFFF;
+  font-weight: 600;
+  padding: 0.6rem 1.4rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.btn-ts-navy:hover {
+  background-color: #172554;
+  color: #FFFFFF;
+}
+
+/* Cards */
+.ts-card {
+  background: var(--ts-card-bg);
+  border: 1px solid var(--ts-border);
+  border-radius: var(--ts-radius-md);
+  box-shadow: var(--ts-shadow-sm);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.ts-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--ts-shadow-lg);
+  border-color: #CBD5E1;
+}
+
+.course-card-thumb {
+  height: 180px;
+  background: linear-gradient(135deg, #1E293B 0%, #1E3A8A 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.course-card-thumb i {
+  font-size: 3.5rem;
+  color: rgba(255, 255, 255, 0.25);
+  transition: transform 0.3s ease;
+}
+
+.ts-card:hover .course-card-thumb i {
+  transform: scale(1.1);
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.badge-level {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  backdrop-filter: blur(8px);
+  background: rgba(15, 23, 42, 0.75);
+  color: #F8FAFC;
+}
+
+.badge-free {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 4px 10px;
+  border-radius: 20px;
+  background: #10B981;
+  color: #FFFFFF;
+}
+
+/* Section Headings */
+.section-tag {
+  color: var(--ts-accent);
+  font-weight: 800;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.section-title {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--ts-primary-dark);
+  margin-bottom: 1rem;
+}
+
+/* Categories Grid */
+.cat-card {
+  padding: 1.5rem;
+  border-radius: var(--ts-radius-md);
+  border: 1px solid var(--ts-border);
+  background: #FFFFFF;
+  transition: all 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.cat-card:hover {
+  background: #FFFFFF;
+  border-color: var(--ts-primary-light);
+  transform: translateY(-3px);
+  box-shadow: var(--ts-shadow-md);
+}
+
+.cat-icon-box {
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  background: #EFF6FF;
+  color: var(--ts-primary-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  margin-bottom: 1rem;
+}
+
+/* Classroom LMS Player Layout */
+.lms-wrapper {
+  display: flex;
+  min-height: calc(100vh - 65px);
+}
+
+.lms-sidebar {
+  width: 340px;
+  background: #FFFFFF;
+  border-right: 1px solid var(--ts-border);
+  overflow-y: auto;
+  flex-shrink: 0;
+}
+
+.lms-content-pane {
+  flex: 1;
+  background: #F8FAFC;
+  overflow-y: auto;
+  padding: 2rem;
+}
+
+.lms-lesson-item {
+  padding: 0.85rem 1.2rem;
+  border-bottom: 1px solid #F1F5F9;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #334155;
+  transition: all 0.2s ease;
+}
+
+.lms-lesson-item:hover {
+  background: #F8FAFC;
+  color: var(--ts-primary);
+}
+
+.lms-lesson-item.active {
+  background: #EFF6FF;
+  border-left: 4px solid var(--ts-primary-light);
+  color: var(--ts-primary);
+  font-weight: 700;
+}
+
+/* Certificate Preview Styling */
+.cert-preview-frame {
+  background: #FFFFFF;
+  border: 8px solid #1E3A8A;
+  outline: 2px solid #D97706;
+  outline-offset: -12px;
+  padding: 3rem 2.5rem;
+  border-radius: 4px;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+  position: relative;
+}
+
+.cert-seal {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: #FEF3C7;
+  border: 2px solid #D97706;
+  color: #92400E;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+/* Footer */
+.ts-footer {
+  background: #0B132B;
+  color: #94A3B8;
+  padding: 4.5rem 0 2rem;
+  border-top: 1px solid #1E293B;
+}
+
+.ts-footer h5 {
+  color: #FFFFFF;
+  font-size: 1.05rem;
+  margin-bottom: 1.25rem;
+}
+
+.ts-footer a {
+  color: #94A3B8;
+}
+
+.ts-footer a:hover {
+  color: #38BDF8;
+  padding-left: 3px;
+}
+
+.ts-footer-bottom {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  padding-top: 1.75rem;
+  margin-top: 3.5rem;
+}
+
+.business-trust-badge {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 1rem;
+}
+
+@media (max-width: 992px) {
+  .ts-hero h1 {
+    font-size: 2.2rem;
+  }
+  .lms-wrapper {
+    flex-direction: column;
+  }
+  .lms-sidebar {
+    width: 100%;
+    max-height: 320px;
+  }
+}

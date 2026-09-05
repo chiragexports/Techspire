@@ -1,0 +1,220 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}{{ title|default:"TECHSPIRE Learning - Learn Today, Lead Tomorrow" }}{% endblock %}</title>
+  <meta name="description" content="{% block meta_description %}TECHSPIRE Learning is an online LMS platform offering high-demand technical courses with verified certificates, interactive quizzes, and career-oriented curriculum.{% endblock %}">
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
+  
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Bootstrap 5.3 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.py" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- FontAwesome 6 Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+  <!-- Top Announcement Bar -->
+  <div class="bg-dark text-white py-1 px-3 d-none d-md-block" style="font-size: 0.8rem; background-color: #0F172A !important;">
+    <div class="container d-flex justify-content-between align-items-center">
+      <div>
+        <span class="badge bg-warning text-dark me-2">ADMISSIONS OPEN</span>
+        <span>Enroll in high-demand tech courses with industry-recognized certificates</span>
+      </div>
+      <div class="d-flex align-items-center gap-3">
+        <span><i class="fas fa-envelope text-primary me-1"></i> {{ business_info.EMAIL }}</span>
+        <span><i class="fas fa-phone-alt text-success me-1"></i> {{ business_info.PHONE }}</span>
+        <span><i class="fas fa-map-marker-alt text-danger me-1"></i> Indore, M.P.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Navigation -->
+  <nav class="navbar navbar-expand-lg ts-navbar">
+    <div class="container">
+      <a class="navbar-brand ts-brand" href="{% url 'core:home' %}">
+        <i class="fas fa-graduation-cap text-primary"></i> TECHSPIRE<span>.</span>
+        <span class="ts-brand-badge">Learning</span>
+      </a>
+
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain" aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarMain">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-3">
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'courses:course_list' %}"><i class="fas fa-compass me-1 text-primary"></i> Explore Courses</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'core:about' %}">About Us</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'certificates:verify_public' %}"><i class="fas fa-certificate text-warning me-1"></i> Verify Certificate</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="{% url 'core:contact' %}">Contact</a>
+          </li>
+        </ul>
+
+        <div class="d-flex align-items-center gap-2">
+          {% if user.is_authenticated %}
+            <a href="{% url 'dashboard:student_dashboard' %}" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+              <i class="fas fa-tachometer-alt me-1"></i> Dashboard
+            </a>
+            
+            <div class="dropdown">
+              <button class="btn btn-light dropdown-toggle d-flex align-items-center gap-2 border rounded-pill px-3 py-1" type="button" id="userMenu" data-bs-toggle="dropdown" aria-expanded="false">
+                <i class="fas fa-user-circle text-primary fs-5"></i>
+                <span class="fw-semibold text-dark">{{ user.first_name|default:user.username }}</span>
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="userMenu">
+                <li><a class="dropdown-item" href="{% url 'dashboard:my_courses' %}"><i class="fas fa-book-reader me-2 text-muted"></i> My Enrolled Courses</a></li>
+                <li><a class="dropdown-item" href="{% url 'certificates:my_certificates' %}"><i class="fas fa-award me-2 text-warning"></i> My Certificates</a></li>
+                <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="fas fa-user-cog me-2 text-muted"></i> Profile & Settings</a></li>
+                {% if user.is_staff %}
+                  <li><hr class="dropdown-divider"></li>
+                  <li><a class="dropdown-item text-primary fw-semibold" href="{% url 'admin:index' %}" target="_blank"><i class="fas fa-shield-alt me-2"></i> Django Admin</a></li>
+                {% endif %}
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>
+              </ul>
+            </div>
+          {% else %}
+            <a href="{% url 'accounts:login' %}" class="btn btn-outline-secondary px-3 py-2 fw-semibold rounded-pill">Log In</a>
+            <a href="{% url 'accounts:register' %}" class="btn btn-ts-primary px-4 py-2 fw-bold rounded-pill">Sign Up Free</a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Flash Messages -->
+  {% if messages %}
+    <div class="container mt-3">
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show shadow-sm d-flex align-items-center justify-content-between" role="alert">
+          <div>
+            <i class="fas fa-info-circle me-2"></i> {{ message }}
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- Main Content Body -->
+  <main>
+    {% block content %}
+    {% endblock %}
+  </main>
+
+  <!-- Global Footer -->
+  <footer class="ts-footer">
+    <div class="container">
+      <div class="row g-4">
+        <!-- Brand & Mission -->
+        <div class="col-lg-4 col-md-6">
+          <div class="ts-brand text-white mb-2">
+            <i class="fas fa-graduation-cap text-primary"></i> TECHSPIRE<span class="text-warning">.</span>
+            <span class="ts-brand-badge bg-primary text-white border-0">Learning</span>
+          </div>
+          <p class="text-white-50 small mb-3">
+            <strong>Tagline:</strong> <em>"Learn Today, Lead Tomorrow."</em><br>
+            Empowering students, freshers, and professionals with career-focused tech courses, hands-on skill assessment, and verifiable online certificates.
+          </p>
+          <div class="business-trust-badge text-white-50 small">
+            <div class="fw-bold text-white mb-1"><i class="fas fa-shield-alt text-success me-1"></i> Verified Legal Enterprise</div>
+            <div><strong>Business Name:</strong> {{ business_info.BUSINESS_NAME }}</div>
+            <div><strong>Proprietor:</strong> {{ business_info.PROPRIETOR_NAME }}</div>
+            <div><strong>Udyam Reg:</strong> {{ business_info.UDYAM }}</div>
+            <div><strong>GSTIN:</strong> {{ business_info.GSTIN }}</div>
+          </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="col-lg-2 col-md-6">
+          <h5>Quick Links</h5>
+          <ul class="list-unstyled small d-flex flex-column gap-2">
+            <li><a href="{% url 'core:home' %}"><i class="fas fa-chevron-right me-1 text-primary"></i> Home</a></li>
+            <li><a href="{% url 'courses:course_list' %}"><i class="fas fa-chevron-right me-1 text-primary"></i> All Courses</a></li>
+            <li><a href="{% url 'core:about' %}"><i class="fas fa-chevron-right me-1 text-primary"></i> About TECHSPIRE</a></li>
+            <li><a href="{% url 'certificates:verify_public' %}"><i class="fas fa-chevron-right me-1 text-primary"></i> Verify Certificate</a></li>
+            <li><a href="{% url 'core:faq' %}"><i class="fas fa-chevron-right me-1 text-primary"></i> Help & FAQs</a></li>
+            <li><a href="{% url 'core:contact' %}"><i class="fas fa-chevron-right me-1 text-primary"></i> Contact Us</a></li>
+          </ul>
+        </div>
+
+        <!-- Featured Domains -->
+        <div class="col-lg-3 col-md-6">
+          <h5>Key Domains</h5>
+          <ul class="list-unstyled small d-flex flex-column gap-2">
+            <li><a href="{% url 'courses:course_list' %}?category=web-development"><i class="fas fa-code me-1 text-info"></i> Web Development</a></li>
+            <li><a href="{% url 'courses:course_list' %}?category=python-programming"><i class="fab fa-python me-1 text-warning"></i> Python Programming</a></li>
+            <li><a href="{% url 'courses:course_list' %}?category=data-analytics"><i class="fas fa-chart-line me-1 text-success"></i> Data Analytics & BI</a></li>
+            <li><a href="{% url 'courses:course_list' %}?category=ai-tools"><i class="fas fa-robot me-1 text-primary"></i> AI & Prompt Engineering</a></li>
+            <li><a href="{% url 'courses:course_list' %}?category=ms-office-skills"><i class="fas fa-file-excel me-1 text-danger"></i> MS Office Suite</a></li>
+          </ul>
+        </div>
+
+        <!-- Contact & Newsletter -->
+        <div class="col-lg-3 col-md-6">
+          <h5>Academic Center</h5>
+          <p class="small text-white-50 mb-2">
+            <i class="fas fa-map-marker-alt text-danger me-2"></i> {{ business_info.ADDRESS }}
+          </p>
+          <p class="small text-white-50 mb-2">
+            <i class="fas fa-phone-alt text-success me-2"></i> {{ business_info.PHONE }}
+          </p>
+          <p class="small text-white-50 mb-3">
+            <i class="fas fa-envelope text-primary me-2"></i> {{ business_info.EMAIL }}
+          </p>
+
+          <form action="{% url 'core:newsletter_subscribe' %}" method="POST" class="mt-3">
+            {% csrf_token %}
+            <div class="input-group input-group-sm">
+              <input type="email" name="email" class="form-control" placeholder="Your email..." required>
+              <button class="btn btn-warning fw-bold text-dark" type="submit">Join</button>
+            </div>
+            <span class="text-white-50" style="font-size: 0.72rem;">Get free tutorials & tech alerts</span>
+          </form>
+        </div>
+      </div>
+
+      <!-- Bottom Bar -->
+      <div class="ts-footer-bottom d-flex flex-column flex-md-row justify-content-between align-items-center gap-2 text-white-50 small">
+        <div>
+          © {% now "Y" %} <strong>TECHSPIRE</strong> (Proprietor: Vivek Jat, Indore, MP). All Rights Reserved.
+        </div>
+        <div class="d-flex gap-3">
+          <a href="{% url 'core:privacy' %}" class="text-white-50">Privacy Policy</a>
+          <span>•</span>
+          <a href="{% url 'core:terms' %}" class="text-white-50">Terms & Conditions</a>
+          <span>•</span>
+          <a href="{% url 'certificates:verify_public' %}" class="text-white-50">Public Verification</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Bootstrap 5.3 JS Bundle -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <!-- Custom JS -->
+  <script src="{% static 'js/main.js' %}"></script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}My Earned Certificates - TECHSPIRE Learning{% endblock %}
+
+{% block content %}
+<div class="py-5 bg-light min-vh-75">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="fw-bold text-dark mb-1">My Earned Certificates</h2>
+        <p class="text-muted small mb-0">Verifiable credentials issued by TECHSPIRE Learning</p>
+      </div>
+      <a href="{% url 'dashboard:student_dashboard' %}" class="btn btn-outline-secondary rounded-pill btn-sm px-3">
+        <i class="fas fa-arrow-left me-1"></i> Dashboard
+      </a>
+    </div>
+
+    <div class="row g-4">
+      {% for cert in certificates %}
+        <div class="col-md-6 col-lg-4">
+          <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100 d-flex flex-column">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <span class="badge bg-success-subtle text-success fw-bold px-3 py-1 rounded-pill">
+                <i class="fas fa-check-circle me-1"></i> VERIFIED
+              </span>
+              <small class="text-muted">{{ cert.issued_at|date:"M d, Y" }}</small>
+            </div>
+
+            <div class="text-center my-3">
+              <div class="bg-primary-subtle text-primary rounded-circle mx-auto d-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+                <i class="fas fa-award fs-2"></i>
+              </div>
+              <h5 class="fw-bold text-dark mb-1">{{ cert.course.title }}</h5>
+              <div class="small text-muted mb-2">Score: <strong class="text-primary">{{ cert.score_percentage }}%</strong></div>
+              <div class="small text-muted font-monospace">ID: {{ cert.certificate_id }}</div>
+            </div>
+
+            <div class="mt-auto d-flex gap-2 pt-3 border-top">
+              <a href="{% url 'certificates:view_certificate' cert_id=cert.certificate_id %}" class="btn btn-outline-primary btn-sm w-50 rounded-pill">
+                <i class="fas fa-eye me-1"></i> View
+              </a>
+              <a href="{% url 'certificates:download_pdf' cert_id=cert.certificate_id %}" class="btn btn-primary btn-sm w-50 rounded-pill">
+                <i class="fas fa-file-pdf me-1"></i> PDF
+              </a>
+            </div>
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-12 text-center py-5">
+          <div class="card border-0 shadow-sm rounded-4 p-5 bg-white mx-auto" style="max-width: 600px;">
+            <i class="fas fa-award fs-1 text-muted mb-3"></i>
+            <h4 class="fw-bold">No certificates earned yet</h4>
+            <p class="text-muted small mb-4">Complete all lessons in your enrolled courses and pass the final quiz assessment to receive your official verified certificate.</p>
+            <div>
+              <a href="{% url 'courses:course_list' %}" class="btn btn-primary rounded-pill px-4">Browse Courses</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

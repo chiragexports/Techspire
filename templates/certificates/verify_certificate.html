@@ -1,0 +1,112 @@
+{% extends 'base.html' %}
+
+{% block title %}Online Certificate Verification - TECHSPIRE Learning{% endblock %}
+
+{% block content %}
+<div class="bg-dark text-white py-5" style="background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%);">
+  <div class="container text-center py-4">
+    <span class="badge bg-warning text-dark fw-bold px-3 py-2 rounded-pill mb-3">
+      <i class="fas fa-shield-check me-1"></i> PUBLIC VERIFICATION PORTAL
+    </span>
+    <h1 class="display-5 fw-bold">Authenticate TECHSPIRE Credentials</h1>
+    <p class="lead text-white-50 mx-auto" style="max-width: 650px;">
+      Instant online verification system for employer, university, and recruiter inquiries.
+    </p>
+  </div>
+</div>
+
+<section class="py-5 bg-light min-vh-75">
+  <div class="container" style="max-width: 800px;">
+    <!-- Search Form Card -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white mb-5">
+      <h4 class="fw-bold mb-2 text-dark text-center">Verify Certificate by ID</h4>
+      <p class="text-muted small text-center mb-4">Enter the unique Certificate ID (e.g. <code>TS-2026-XXXXXXXX</code>) printed on the document or encoded in the QR code.</p>
+
+      <form method="GET" action="{% url 'certificates:verify_public' %}">
+        <div class="input-group input-group-lg mb-3 shadow-sm">
+          <span class="input-group-text bg-light"><i class="fas fa-certificate text-primary"></i></span>
+          <input type="text" name="cert_id" value="{{ cert_id }}" class="form-control text-uppercase font-monospace fw-bold" placeholder="e.g. TS-2026-A1B2C3D4" required>
+          <button class="btn btn-ts-primary px-4 fw-bold" type="submit">Verify Now</button>
+        </div>
+      </form>
+    </div>
+
+    <!-- Verification Result Section -->
+    {% if has_searched %}
+      {% if is_valid and certificate %}
+        <!-- VALID CERTIFICATE -->
+        <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5 bg-white border-top border-success border-5">
+          <div class="d-flex align-items-center gap-3 mb-4 pb-3 border-bottom">
+            <div class="bg-success text-white rounded-circle p-3 d-flex align-items-center justify-content-center" style="width: 60px; height: 60px;">
+              <i class="fas fa-check-circle fs-2"></i>
+            </div>
+            <div>
+              <span class="badge bg-success fw-bold px-3 py-1 rounded-pill mb-1">OFFICIALLY VERIFIED & ACTIVE</span>
+              <h4 class="fw-bold text-dark mb-0">Authentic TECHSPIRE Learning Credential</h4>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-bordered align-middle">
+              <tbody>
+                <tr>
+                  <th class="bg-light text-muted w-35">Certificate ID</th>
+                  <td class="fw-bold font-monospace text-primary">{{ certificate.certificate_id }}</td>
+                </tr>
+                <tr>
+                  <th class="bg-light text-muted">Recipient Name</th>
+                  <td class="fw-bold fs-5 text-dark">{{ certificate.user.full_name }}</td>
+                </tr>
+                <tr>
+                  <th class="bg-light text-muted">Course Completed</th>
+                  <td class="fw-bold text-dark">{{ certificate.course.title }}</td>
+                </tr>
+                <tr>
+                  <th class="bg-light text-muted">Issuing Organization</th>
+                  <td>TECHSPIRE (Proprietor: Vivek Jat), Indore, MP</td>
+                </tr>
+                <tr>
+                  <th class="bg-light text-muted">Enterprise Registration</th>
+                  <td>Udyam: {{ business_info.UDYAM }} • GSTIN: {{ business_info.GSTIN }}</td>
+                </tr>
+                <tr>
+                  <th class="bg-light text-muted">Issue Date</th>
+                  <td>{{ certificate.issued_at|date:"F d, Y" }}</td>
+                </tr>
+                <tr>
+                  <th class="bg-light text-muted">Assessment Score</th>
+                  <td><span class="badge bg-primary-subtle text-primary fw-bold">{{ certificate.score_percentage }}% Passed</span></td>
+                </tr>
+                <tr>
+                  <th class="bg-light text-muted">Status</th>
+                  <td><span class="text-success fw-bold"><i class="fas fa-check me-1"></i> Valid & Registered</span></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="text-center mt-4">
+            <a href="{% url 'certificates:download_pdf' cert_id=certificate.certificate_id %}" class="btn btn-outline-primary rounded-pill px-4 fw-bold">
+              <i class="fas fa-file-pdf me-2"></i> Download Official Verified PDF
+            </a>
+          </div>
+        </div>
+      {% else %}
+        <!-- INVALID CERTIFICATE -->
+        <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5 bg-white border-top border-danger border-5 text-center">
+          <div class="bg-danger text-white rounded-circle mx-auto p-3 d-flex align-items-center justify-content-center mb-3" style="width: 60px; height: 60px;">
+            <i class="fas fa-times-circle fs-2"></i>
+          </div>
+          <h4 class="fw-bold text-danger mb-2">Certificate Not Found or Invalid</h4>
+          <p class="text-muted small mb-4">
+            No active credential matches Certificate ID <strong>"{{ cert_id }}"</strong> in the TECHSPIRE database. Please verify the characters and try again.
+          </p>
+          <div>
+            <a href="{% url 'core:contact' %}" class="btn btn-outline-secondary rounded-pill px-4">Contact Support</a>
+          </div>
+        </div>
+      {% endif %}
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

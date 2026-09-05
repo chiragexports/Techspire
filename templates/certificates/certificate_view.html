@@ -1,0 +1,117 @@
+{% extends 'base.html' %}
+
+{% block title %}Certificate of Completion - {{ certificate.course.title }} - TECHSPIRE{% endblock %}
+
+{% block content %}
+<div class="py-5 bg-light">
+  <div class="container" style="max-width: 950px;">
+    <!-- Top Action Buttons -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <a href="{% url 'certificates:my_certificates' %}" class="btn btn-outline-secondary rounded-pill btn-sm px-3">
+        <i class="fas fa-arrow-left me-1"></i> My Certificates
+      </a>
+
+      <div class="d-flex gap-2">
+        <button onclick="window.print()" class="btn btn-outline-dark btn-sm rounded-pill px-3">
+          <i class="fas fa-print me-1"></i> Print
+        </button>
+        <a href="{% url 'certificates:download_pdf' cert_id=certificate.certificate_id %}" class="btn btn-ts-primary btn-sm rounded-pill px-4 fw-bold">
+          <i class="fas fa-download me-1"></i> Download PDF
+        </a>
+      </div>
+    </div>
+
+    <!-- Official Certificate Frame -->
+    <div class="cert-preview-frame bg-white text-center shadow-lg position-relative overflow-hidden mb-4">
+      <!-- Watermark Background -->
+      <div class="position-absolute top-50 start-50 translate-middle opacity-5 pointer-events-none" style="font-size: 15rem; color: #1E3A8A; z-index: 1;">
+        <i class="fas fa-graduation-cap"></i>
+      </div>
+
+      <div class="position-relative" style="z-index: 2;">
+        <!-- Header -->
+        <div class="mb-2">
+          <h2 class="fw-extrabold text-navy tracking-wide mb-0" style="letter-spacing: 0.1em; color: #1E3A8A;">
+            TECHSPIRE LEARNING
+          </h2>
+          <div class="text-warning fw-bold small text-uppercase" style="letter-spacing: 0.15em;">
+            Learn Today, Lead Tomorrow.
+          </div>
+          <div class="text-muted fw-bold small mt-1 text-uppercase" style="letter-spacing: 0.1em;">
+            Certificate of Completion & Professional Excellence
+          </div>
+        </div>
+
+        <hr class="w-50 mx-auto my-3" style="border-top: 2px solid #CBD5E1;">
+
+        <!-- Recipient -->
+        <p class="text-muted fst-italic mb-1">This is to proudly certify that</p>
+        <h1 class="display-5 fw-bold text-dark mb-1" style="font-family: 'Plus Jakarta Sans', sans-serif;">
+          {{ certificate.user.full_name }}
+        </h1>
+        <div class="w-25 mx-auto mb-3" style="border-bottom: 2px solid #2563EB;"></div>
+
+        <!-- Course Narrative -->
+        <p class="text-muted mb-2">
+          has successfully fulfilled all curriculum requirements, passed practical assessments, and demonstrated mastery in
+        </p>
+
+        <h3 class="fw-bold text-navy mb-3" style="color: #1E3A8A;">
+          {{ certificate.course.title }}
+        </h3>
+
+        <p class="small text-muted mb-4">
+          Issued on <strong>{{ certificate.issued_at|date:"F d, Y" }}</strong> • Passing Grade: <strong>{{ certificate.score_percentage }}%</strong> • Certificate ID: <strong class="font-monospace text-dark">{{ certificate.certificate_id }}</strong>
+        </p>
+
+        <!-- Footer Row with QR Code, Seal, and Authorized Signature -->
+        <div class="row align-items-center pt-3 border-top g-3">
+          <!-- QR Code & Public Verification -->
+          <div class="col-4 text-start">
+            <div class="d-flex align-items-center gap-3">
+              {% if certificate.qr_code %}
+                <img src="{{ certificate.qr_code.url }}" alt="QR Code" width="70" height="70" class="border rounded p-1">
+              {% endif %}
+              <div class="small">
+                <span class="d-block text-muted" style="font-size: 0.72rem;">Verify Authenticity at:</span>
+                <a href="{% url 'certificates:verify_public' %}?cert_id={{ certificate.certificate_id }}" target="_blank" class="fw-bold small text-primary text-decoration-none">
+                  techspire.in/verify
+                </a>
+                <span class="d-block text-muted" style="font-size: 0.7rem;">Indore, Madhya Pradesh</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Official Golden Seal -->
+          <div class="col-4 d-flex justify-content-center">
+            <div class="cert-seal shadow-sm">
+              <i class="fas fa-shield-alt text-warning mb-1"></i>
+              <span>VERIFIED</span>
+              <span style="font-size: 0.55rem;">EXCELLENCE</span>
+            </div>
+          </div>
+
+          <!-- Authorized Signature: Vivek Jat -->
+          <div class="col-4 text-end">
+            <div class="d-inline-block text-center">
+              <div class="fs-4 fw-bold fst-italic text-navy mb-0" style="font-family: cursive; color: #1E3A8A;">
+                Vivek Jat
+              </div>
+              <div class="border-top border-dark pt-1" style="min-width: 140px;">
+                <div class="fw-bold small text-dark">Vivek Jat</div>
+                <div class="text-muted" style="font-size: 0.72rem;">Proprietor & Lead Director</div>
+                <div class="text-muted" style="font-size: 0.7rem;">TECHSPIRE, Indore (M.P.)</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Verification Info Notice -->
+    <div class="card border-0 bg-white p-3 rounded-4 shadow-sm text-center small text-muted">
+      <span><i class="fas fa-info-circle text-primary me-1"></i> This credential is permanently registered under Udyam Reg: <strong>UDYAM-MP-23-0283495</strong> & GSTIN: <strong>23BEZPJ5728J1ZW</strong>. Anyone can verify this certificate online at any time.</span>
+    </div>
+  </div>
+</div>
+{% endblock %}

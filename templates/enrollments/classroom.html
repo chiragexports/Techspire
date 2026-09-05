@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block title %}Classroom: {{ course.title }} - TECHSPIRE Learning{% endblock %}
+
+{% block content %}
+<div class="py-5 bg-light min-vh-75">
+  <div class="container" style="max-width: 850px;">
+    <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white text-center">
+      <div class="bg-primary-subtle text-primary rounded-circle mx-auto d-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+        <i class="fas fa-graduation-cap fs-2"></i>
+      </div>
+
+      <h2 class="fw-bold text-dark mb-2">{{ course.title }}</h2>
+      <p class="text-muted small mb-4">{{ course.short_description }}</p>
+
+      <div class="row g-3 py-3 border-top border-bottom my-3">
+        <div class="col-sm-4 text-center">
+          <div class="fs-4 fw-bold text-primary">{{ course.total_modules_count }}</div>
+          <small class="text-muted">Total Modules</small>
+        </div>
+        <div class="col-sm-4 text-center border-start border-end">
+          <div class="fs-4 fw-bold text-success">{{ course.total_lessons_count }}</div>
+          <small class="text-muted">Total Lessons</small>
+        </div>
+        <div class="col-sm-4 text-center">
+          <div class="fs-4 fw-bold text-warning">{{ enrollment.progress_percentage }}%</div>
+          <small class="text-muted">Your Progress</small>
+        </div>
+      </div>
+
+      <div class="mt-4">
+        {% with first_lesson=enrollment.get_last_accessed_or_first_lesson %}
+          {% if first_lesson %}
+            <a href="{% url 'enrollments:lesson_view' course_slug=course.slug lesson_id=first_lesson.id %}" class="btn btn-ts-primary btn-lg rounded-pill px-5 fw-bold shadow">
+              <i class="fas fa-play-circle me-2"></i> Start / Resume Learning
+            </a>
+          {% else %}
+            <p class="text-muted">Lessons are being updated for this course.</p>
+          {% endif %}
+        {% endwith %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

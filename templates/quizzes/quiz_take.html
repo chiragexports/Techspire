@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Taking: {{ quiz.title }} - TECHSPIRE Learning{% endblock %}
+
+{% block content %}
+<div class="py-5 bg-light min-vh-75">
+  <div class="container" style="max-width: 850px;">
+    <!-- Quiz Header & Floating Timer -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white d-flex flex-row justify-content-between align-items-center">
+      <div>
+        <h4 class="fw-bold mb-1">{{ quiz.title }}</h4>
+        <small class="text-muted">{{ course.title }} • {{ questions.count }} Questions</small>
+      </div>
+
+      {% if quiz.time_limit_minutes > 0 %}
+        <div class="text-end">
+          <small class="text-muted d-block">Time Remaining</small>
+          <span id="quiz-timer" class="fs-4 fw-bold text-primary" data-seconds="{{ quiz.time_limit_minutes|stringformat:'d' }}00">
+            {{ quiz.time_limit_minutes }}:00
+          </span>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Questions Form -->
+    <form method="POST" id="quiz-form">
+      {% csrf_token %}
+
+      {% for q in questions %}
+        <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white mb-4">
+          <div class="d-flex justify-content-between align-items-start mb-3">
+            <span class="badge bg-primary-subtle text-primary fw-bold">Question {{ forloop.counter }} of {{ questions.count }}</span>
+            <span class="text-muted small">{{ q.points }} Point{{ q.points|pluralize }}</span>
+          </div>
+
+          <h5 class="fw-bold text-dark mb-4">{{ q.prompt }}</h5>
+
+          <div class="d-flex flex-column gap-3">
+            {% for choice in q.choices.all %}
+              <label class="p-3 border rounded-3 d-flex align-items-center gap-3 cursor-pointer hover-bg-light transition">
+                <input class="form-check-input mt-0" type="radio" name="question_{{ q.id }}" value="{{ choice.id }}" required>
+                <span class="text-dark small fw-medium">{{ choice.choice_text }}</span>
+              </label>
+            {% endfor %}
+          </div>
+        </div>
+      {% endfor %}
+
+      <div class="card border-0 shadow-sm rounded-4 p-4 bg-white text-center">
+        <p class="text-muted small mb-3">Double-check all your responses before final submission.</p>
+        <button type="submit" class="btn btn-ts-primary btn-lg px-5 fw-bold rounded-pill shadow">
+          Submit Assessment <i class="fas fa-check-circle ms-2"></i>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
