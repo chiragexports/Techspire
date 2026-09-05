@@ -8,14 +8,20 @@ from .models import FAQ, Testimonial, ContactInquiry, SiteSetting
 from .forms import ContactInquiryForm, NewsletterForm
 
 def home_view(request):
-    featured_courses = Course.objects.filter(is_published=True).select_related('category', 'instructor')[:6]
-    categories = CourseCategory.objects.annotate(courses_count=Count('courses')).order_by('order', 'name')
-    testimonials = Testimonial.objects.filter(is_featured=True)[:6]
-    faqs = FAQ.objects.filter(is_active=True)[:6]
-    
-    # Platform stats
-    total_students = User.objects.filter(role='student').count() + 1250  # base counter for realism
-    total_courses = Course.objects.filter(is_published=True).count()
+    try:
+        featured_courses = Course.objects.filter(is_published=True).select_related('category', 'instructor')[:6]
+        categories = CourseCategory.objects.annotate(courses_count=Count('courses')).order_by('order', 'name')
+        testimonials = Testimonial.objects.filter(is_featured=True)[:6]
+        faqs = FAQ.objects.filter(is_active=True)[:6]
+        total_students = User.objects.filter(role='student').count() + 1250
+        total_courses = Course.objects.filter(is_published=True).count()
+    except Exception:
+        featured_courses = []
+        categories = []
+        testimonials = []
+        faqs = []
+        total_students = 1250
+        total_courses = 0
     
     context = {
         'featured_courses': featured_courses,
@@ -27,6 +33,7 @@ def home_view(request):
         'title': 'TECHSPIRE Learning - Master Tech Skills Online',
     }
     return render(request, 'core/home.html', context)
+
 
 
 def about_view(request):
