@@ -68,13 +68,19 @@ WSGI_APPLICATION = 'techspire_project.wsgi.application'
 
 # Database configuration
 # Uses DATABASE_URL if provided, else falls back to SQLite for easy local runs
-DATABASES = {
-    'default': config(
-        'DATABASE_URL',
-        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
-        cast=dj_database_url.parse
-    )
-}
+DATABASE_URL = config('DATABASE_URL', default=None)
+if DATABASE_URL:
+    DATABASES = {
+        'default': dj_database_url.parse(DATABASE_URL)
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
+
 
 # Custom User Model
 AUTH_USER_MODEL = 'accounts.User'
