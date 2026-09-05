@@ -13,7 +13,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Security settings
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-techspire-learning-key-2026-production-ready')
 DEBUG = config('DEBUG', default=True, cast=bool)
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,0.0.0.0,*', cast=Csv())
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*,127.0.0.1,localhost,.vercel.app,.now.sh', cast=Csv())
+
+# Reverse Proxy / Vercel SSL & Host Forwarding
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.vercel.app',
+    'https://*.now.sh',
+    'http://127.0.0.1',
+    'http://localhost',
+]
+
 
 # Application definition
 INSTALLED_APPS = [
