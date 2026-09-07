@@ -120,13 +120,61 @@ if DATABASE_URL:
 else:
     # On Vercel serverless, the local filesystem is read-only except /tmp
     is_serverless = bool(os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME'))
-    db_path = Path('/tmp/db.sqlite3') if is_serverless else (BASE_DIR / 'db.sqlite3')
+    if is_serverless:
+        import shutil
+        tmp_db = Path('/tmp/db.sqlite3')
+        possible_sources = [
+            BASE_DIR / 'db.sqlite3',
+            Path.cwd() / 'db.sqlite3',
+            Path('/var/task/db.sqlite3'),
+            Path(__file__).resolve().parent.parent / 'db.sqlite3',
+        ]
+        best_src = None
+        best_size = 0
+        for src in possible_sources:
+            if src.exists() and src.stat().st_size > best_size:
+                best_src = src
+                best_size = src.stat().st_size
+
+        if best_src:
+            dest_size = tmp_db.stat().st_size if tmp_db.exists() else 0
+            if dest_size != best_size:
+                try:
+                    shutil.copy2(best_src, tmp_db)
+                except Exception:
+                    pass
+        db_path = tmp_db
+    else:
+        db_path = BASE_DIR / 'db.sqlite3'
+
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
             'NAME': db_path,
         }
     }
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'INFO',
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
+
 
 
 
