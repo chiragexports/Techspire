@@ -19,6 +19,7 @@ def ensure_sqlite_db():
             Path(__file__).resolve().parent.parent / 'db.sqlite3',
             Path.cwd() / 'db.sqlite3',
             Path('/var/task/db.sqlite3'),
+            Path('/var/task/user/db.sqlite3'),
         ]
         best_src = None
         best_size = 0
@@ -29,11 +30,17 @@ def ensure_sqlite_db():
 
         if best_src:
             dest_size = dest_db.stat().st_size if dest_db.exists() else 0
-            if dest_size < best_size:
+            if dest_size != best_size:
                 shutil.copy2(best_src, dest_db)
-        elif not dest_db.exists() and (os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME')):
+
+        if os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME'):
+            import django
+            django.setup()
             from django.core.management import call_command
-            call_command('migrate', interactive=False)
+            try:
+                call_command('migrate', interactive=False)
+            except Exception as mig_err:
+                print(f"Serverless auto-migration notice: {mig_err}", file=sys.stderr)
     except Exception as e:
         print(f"Notice during db setup: {e}", file=sys.stderr)
 

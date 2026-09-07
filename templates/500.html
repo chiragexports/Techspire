@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block title %}Server Error (500) - TECHSPIRE Learning{% endblock %}
+
+{% block content %}
+<div class="py-5 bg-light min-vh-75 d-flex align-items-center">
+  <div class="container text-center" style="max-width: 600px;">
+    <div class="card border-0 shadow-sm rounded-4 p-5 bg-white">
+      <div class="mb-4">
+        <div class="bg-danger-subtle text-danger rounded-circle mx-auto d-flex align-items-center justify-content-center" style="width: 90px; height: 90px;">
+          <i class="fas fa-exclamation-triangle fs-1"></i>
+        </div>
+      </div>
+      <h2 class="fw-bold text-dark mb-2">Something Went Wrong</h2>
+      <p class="text-muted mb-4">We encountered a temporary server error. Please try refreshing the page or head back to the home page.</p>
+      <div class="d-flex justify-content-center gap-3">
+        <a href="{% url 'core:home' %}" class="btn btn-ts-primary rounded-pill px-4 fw-bold">
+          <i class="fas fa-home me-2"></i> Return Home
+        </a>
+        <a href="{% url 'courses:course_list' %}" class="btn btn-outline-secondary rounded-pill px-4">
+          Browse Courses
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
