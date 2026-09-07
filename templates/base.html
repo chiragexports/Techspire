@@ -61,6 +61,9 @@
             <a class="nav-link" href="{% url 'courses:course_list' %}"><i class="fas fa-compass me-1 text-primary"></i> Explore Courses</a>
           </li>
           <li class="nav-item">
+            <a class="nav-link" href="{% url 'notes:marketplace' %}"><i class="fas fa-book-open me-1 text-warning"></i> Premium Notes</a>
+          </li>
+          <li class="nav-item">
             <a class="nav-link" href="{% url 'core:about' %}">About Us</a>
           </li>
           <li class="nav-item">
@@ -73,6 +76,12 @@
 
         <div class="d-flex align-items-center gap-2">
           {% if user.is_authenticated %}
+            {% if user.is_staff or user.role == 'admin' %}
+              <a href="{% url 'dashboard:admin_overview' %}" class="btn btn-danger btn-sm rounded-pill px-3 fw-bold">
+                <i class="fas fa-shield-alt me-1"></i> Admin Portal
+              </a>
+            {% endif %}
+
             <a href="{% url 'dashboard:student_dashboard' %}" class="btn btn-outline-primary btn-sm rounded-pill px-3">
               <i class="fas fa-tachometer-alt me-1"></i> Dashboard
             </a>
@@ -83,12 +92,19 @@
                 <span class="fw-semibold text-dark">{{ user.first_name|default:user.username }}</span>
               </button>
               <ul class="dropdown-menu dropdown-menu-end shadow-sm" aria-labelledby="userMenu">
-                <li><a class="dropdown-item" href="{% url 'dashboard:my_courses' %}"><i class="fas fa-book-reader me-2 text-muted"></i> My Enrolled Courses</a></li>
-                <li><a class="dropdown-item" href="{% url 'certificates:my_certificates' %}"><i class="fas fa-award me-2 text-warning"></i> My Certificates</a></li>
+                {% if user.is_staff or user.role == 'admin' %}
+                  <li><a class="dropdown-item text-danger fw-bold" href="{% url 'dashboard:admin_overview' %}"><i class="fas fa-chart-line me-2"></i> Admin Analytics & Progress</a></li>
+                  <li><a class="dropdown-item text-dark" href="{% url 'dashboard:admin_users_list' %}"><i class="fas fa-users me-2 text-primary"></i> Manage Learners</a></li>
+                  <li><a class="dropdown-item text-dark" href="{% url 'dashboard:admin_content_courses' %}"><i class="fas fa-book me-2 text-warning"></i> Manage Curriculum</a></li>
+                  <li><hr class="dropdown-divider"></li>
+                {% endif %}
+                <li><a class="dropdown-item" href="{% url 'dashboard:student_dashboard' %}"><i class="fas fa-tachometer-alt me-2 text-primary"></i> Student Portal</a></li>
+                <li><a class="dropdown-item" href="{% url 'dashboard:my_courses' %}"><i class="fas fa-book-reader me-2 text-primary"></i> My Enrolled Courses</a></li>
+                <li><a class="dropdown-item" href="{% url 'certificates:my_certificates' %}"><i class="fas fa-award me-2 text-success"></i> My Certificates</a></li>
                 <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="fas fa-user-cog me-2 text-muted"></i> Profile & Settings</a></li>
                 {% if user.is_staff %}
                   <li><hr class="dropdown-divider"></li>
-                  <li><a class="dropdown-item text-primary fw-semibold" href="{% url 'admin:index' %}" target="_blank"><i class="fas fa-shield-alt me-2"></i> Django Admin</a></li>
+                  <li><a class="dropdown-item text-muted small" href="{% url 'admin:index' %}" target="_blank"><i class="fas fa-database me-2"></i> Django Backend Admin</a></li>
                 {% endif %}
                 <li><hr class="dropdown-divider"></li>
                 <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}"><i class="fas fa-sign-out-alt me-2"></i> Logout</a></li>

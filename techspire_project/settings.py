@@ -11,19 +11,49 @@ import dj_database_url
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security settings
-SECRET_KEY = os.environ.get('SECRET_KEY') or config('SECRET_KEY', default='') or 'django-insecure-techspire-learning-key-2026-production-ready-secret-key-indore'
-DEBUG = True
+SECRET_KEY = os.environ.get('SECRET_KEY') or config('SECRET_KEY', default='django-insecure-techspire-learning-key-2026-production-ready-secret-key-indore')
+DEBUG = config('DEBUG', default=False, cast=bool) or ('localhost' in os.environ.get('HTTP_HOST', '') or os.environ.get('DEBUG', '').lower() in ['true', '1'])
 
 ALLOWED_HOSTS = ['*']
 
-
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
+IS_VERCEL = bool(os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME'))
+
+# ==========================================
+# AUTHENTICATION & SESSION PERSISTENCE
+# ==========================================
+# Use database backed session engine to guarantee robust session persistence
+# across cold starts, page refreshes, quiz submissions, and multi-device logins.
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+SESSION_COOKIE_NAME = 'techspire_sessionid'
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 30  # 30 Days persistence
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+SESSION_SAVE_EVERY_REQUEST = True
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_PATH = '/'
+SESSION_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SECURE = config('SESSION_COOKIE_SECURE', default=False, cast=bool) or (IS_VERCEL and not DEBUG)
+
+CSRF_COOKIE_NAME = 'techspire_csrftoken'
+CSRF_COOKIE_AGE = 60 * 60 * 24 * 30
+CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_PATH = '/'
+CSRF_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_SECURE = config('CSRF_COOKIE_SECURE', default=False, cast=bool) or (IS_VERCEL and not DEBUG)
+
 CSRF_TRUSTED_ORIGINS = [
+    'https://techspire.vercel.app',
     'https://*.vercel.app',
     'https://*.now.sh',
     'http://127.0.0.1',
     'http://localhost',
+]
+
+AUTHENTICATION_BACKENDS = [
+    'apps.accounts.backends.PersistentAuthBackend',
+    'django.contrib.auth.backends.ModelBackend',
 ]
 
 
@@ -41,6 +71,7 @@ INSTALLED_APPS = [
     'apps.accounts.apps.AccountsConfig',
     'apps.core.apps.CoreConfig',
     'apps.courses.apps.CoursesConfig',
+    'apps.notes.apps.NotesConfig',
     'apps.enrollments.apps.EnrollmentsConfig',
     'apps.quizzes.apps.QuizzesConfig',
     'apps.certificates.apps.CertificatesConfig',
@@ -80,11 +111,11 @@ TEMPLATES = [
 WSGI_APPLICATION = 'techspire_project.wsgi.application'
 
 # Database configuration
-# Uses DATABASE_URL if provided, else falls back to SQLite for easy local runs
-DATABASE_URL = config('DATABASE_URL', default=None)
+# Uses DATABASE_URL (PostgreSQL/Neon/Supabase) if provided, else falls back to SQLite
+DATABASE_URL = os.environ.get('DATABASE_URL') or config('DATABASE_URL', default=None)
 if DATABASE_URL:
     DATABASES = {
-        'default': dj_database_url.parse(DATABASE_URL)
+        'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
     }
 else:
     # On Vercel serverless, the local filesystem is read-only except /tmp

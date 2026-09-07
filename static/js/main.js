@@ -3,7 +3,7 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Auto-dismiss alert notifications after 5 seconds
+  // Auto-dismiss alert notifications after 6 seconds
   const alerts = document.querySelectorAll('.alert-dismissible');
   alerts.forEach(alert => {
     setTimeout(() => {
@@ -38,4 +38,25 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     }, 1000);
   }
+
+  // Copy Code Button Listener
+  document.querySelectorAll('.copy-code-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const codeText = btn.getAttribute('data-code') || btn.closest('.ts-code-card').querySelector('code').innerText;
+      
+      navigator.clipboard.writeText(codeText).then(() => {
+        const originalHtml = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-check me-1"></i> Copied!';
+        btn.classList.add('copied');
+        
+        setTimeout(() => {
+          btn.innerHTML = originalHtml;
+          btn.classList.remove('copied');
+        }, 2200);
+      }).catch(err => {
+        console.error('Failed to copy code: ', err);
+      });
+    });
+  });
 });

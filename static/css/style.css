@@ -439,3 +439,184 @@ a:hover {
     max-height: 320px;
   }
 }
+
+/* ==========================================================================
+   Educational Notes & Interactive Study Material System
+   ========================================================================== */
+.ts-notes-container {
+  font-size: 1rem;
+  color: #1E293B;
+  line-height: 1.8;
+}
+
+.ts-notes-container h2 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0F172A;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+}
+
+.ts-notes-container h3 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1E3A8A;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.ts-notes-container h4 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #334155;
+  margin-top: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Callout Boxes */
+.ts-callout {
+  border-radius: 12px;
+  position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ts-callout:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+}
+
+.ts-callout-important {
+  background-color: #FEF2F2 !important;
+  border-left: 5px solid #EF4444 !important;
+}
+
+.ts-callout-tip {
+  background-color: #FFFBEB !important;
+  border-left: 5px solid #F59E0B !important;
+}
+
+.ts-callout-warning {
+  background-color: #FFF7ED !important;
+  border-left: 5px solid #F97316 !important;
+}
+
+.ts-callout-interview {
+  background-color: #EEF2FF !important;
+  border-left: 5px solid #4F46E5 !important;
+}
+
+.ts-callout-note {
+  background-color: #F0F9FF !important;
+  border-left: 5px solid #0284C7 !important;
+}
+
+.ts-callout-example {
+  background-color: #ECFDF5 !important;
+  border-left: 5px solid #10B981 !important;
+}
+
+/* Code Cards */
+.ts-code-card {
+  border: 1px solid #334155;
+  border-radius: 10px;
+}
+
+.ts-code-card pre {
+  margin: 0;
+  max-height: 480px;
+}
+
+.copy-code-btn {
+  transition: all 0.2s ease;
+}
+
+.copy-code-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.copy-code-btn.copied {
+  background: #10B981 !important;
+  color: #FFFFFF !important;
+  border-color: #10B981 !important;
+}
+
+/* Roadmap Visualizer */
+.roadmap-timeline {
+  position: relative;
+  padding-left: 2.25rem;
+}
+
+.roadmap-timeline::before {
+  content: '';
+  position: absolute;
+  top: 10px;
+  bottom: 10px;
+  left: 12px;
+  width: 3px;
+  background: linear-gradient(to bottom, #3B82F6, #10B981);
+  border-radius: 2px;
+}
+
+.roadmap-item {
+  position: relative;
+  margin-bottom: 1.5rem;
+}
+
+.roadmap-marker {
+  position: absolute;
+  left: -2.25rem;
+  top: 4px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #1E3A8A;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 800;
+  border: 3px solid #FFFFFF;
+  box-shadow: 0 0 0 2px #3B82F6;
+}
+
+/* Capstone Project Card */
+.ts-project-card {
+  border-radius: 12px;
+  border: 1px solid #E2E8F0;
+  transition: all 0.3s ease;
+  background: #FFFFFF;
+}
+
+.ts-project-card:hover {
+  transform: translateY(-4px);
+  border-color: #3B82F6;
+  box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.15);
+}
+
+.tech-tag {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 15px;
+  background: #EFF6FF;
+  color: #1D4ED8;
+  border: 1px solid #DBEAFE;
+}
+
+/* Practice Exercise Box */
+.practice-exercise-box {
+  background: #F8FAFC;
+  border: 1px dashed #CBD5E1;
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.practice-exercise-box .solution-collapse {
+  background: #FFFFFF;
+  border: 1px solid #E2E8F0;
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+

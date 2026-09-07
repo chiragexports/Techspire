@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load notes_tags %}
 
 {% block content %}
 <!-- Hero Section -->
@@ -157,6 +158,7 @@
 
     <div class="row g-4">
       {% for course in featured_courses %}
+        {% with enrollment=user_enrollments_map|get_item:course.id %}
         <div class="col-lg-4 col-md-6">
           <div class="ts-card h-100 d-flex flex-column">
             <div class="course-card-thumb">
@@ -178,6 +180,18 @@
                 {{ course.short_description|truncatewords:15 }}
               </p>
 
+              {% if enrollment %}
+                <div class="mb-3 p-2 bg-light rounded-3 border">
+                  <div class="d-flex justify-content-between align-items-center small mb-1">
+                    <span class="text-muted fw-semibold"><i class="fas fa-chart-line text-primary me-1"></i> Your Progress</span>
+                    <span class="fw-bold text-primary">{{ enrollment.progress }}%</span>
+                  </div>
+                  <div class="progress" style="height: 6px;">
+                    <div class="progress-bar bg-primary" role="progressbar" style="width: {{ enrollment.progress }}%;" aria-valuenow="{{ enrollment.progress }}" aria-valuemin="0" aria-valuemax="100"></div>
+                  </div>
+                </div>
+              {% endif %}
+
               <div class="d-flex justify-content-between text-muted small py-2 border-top border-bottom mb-3">
                 <span><i class="fas fa-book-open me-1 text-primary"></i> {{ course.total_lessons_count }} Lessons</span>
                 <span><i class="fas fa-clock me-1 text-secondary"></i> {{ course.duration_hours }}h Total</span>
@@ -187,13 +201,20 @@
                 <div class="small text-muted">
                   <i class="fas fa-user-tie text-secondary me-1"></i> {{ course.instructor_name }}
                 </div>
-                <a href="{{ course.get_absolute_url }}" class="btn btn-sm btn-primary px-3 rounded-pill fw-semibold">
-                  View Course
-                </a>
+                {% if enrollment %}
+                  <a href="{% url 'enrollments:course_continue' course.slug %}" class="btn btn-sm btn-success px-3 rounded-pill fw-semibold">
+                    <i class="fas fa-play me-1"></i> Continue
+                  </a>
+                {% else %}
+                  <a href="{{ course.get_absolute_url }}" class="btn btn-sm btn-primary px-3 rounded-pill fw-semibold">
+                    Start Learning
+                  </a>
+                {% endif %}
               </div>
             </div>
           </div>
         </div>
+        {% endwith %}
       {% endfor %}
     </div>
 
@@ -201,6 +222,98 @@
       <a href="{% url 'courses:course_list' %}" class="btn btn-outline-dark btn-lg rounded-pill px-5 fw-bold">
         Browse All {{ total_courses }}+ Courses
       </a>
+    </div>
+  </div>
+</section>
+
+<!-- Premium Learning Notes Marketplace Showcase Section -->
+<section class="py-5 bg-white border-top border-bottom">
+  <div class="container">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-end mb-4">
+      <div>
+        <span class="badge bg-warning text-dark fw-bold px-3 py-1 rounded-pill mb-2">
+          <i class="fas fa-book-open me-1"></i> HIGH-YIELD STUDY MATERIAL
+        </span>
+        <h2 class="section-title mb-1">Premium Learning Notes & E-Books</h2>
+        <p class="text-muted mb-0">Master practical skills faster with structured textbook notes, diagrams, annotated code, exercises, and interview kits.</p>
+      </div>
+      <a href="{% url 'notes:marketplace' %}" class="btn btn-ts-primary rounded-pill px-4 fw-bold mt-3 mt-md-0">
+        Explore Notes Store <i class="fas fa-arrow-right ms-1"></i>
+      </a>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-3 col-md-6">
+        <div class="card border rounded-4 p-4 shadow-sm h-100 d-flex flex-column bg-light">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="badge bg-warning text-dark fw-bold"><i class="fab fa-python me-1"></i> Python</span>
+            <span class="text-warning small fw-bold"><i class="fas fa-star"></i> 4.9</span>
+          </div>
+          <h5 class="fw-bold text-dark mb-2">Python Programming: Zero to Pro</h5>
+          <p class="text-muted small mb-3 flex-grow-1">23 Comprehensive Parts, OOP architecture, Socket networking, and 50+ interview Q&As.</p>
+          <div class="d-flex justify-content-between align-items-baseline mt-auto pt-2 border-top">
+            <div>
+              <span class="fs-4 fw-extrabold text-primary">₹299</span>
+              <span class="text-muted text-decoration-line-through small ms-1">₹599</span>
+            </div>
+            <a href="{% url 'notes:marketplace' %}?category=python-programming" class="btn btn-sm btn-primary rounded-pill px-3">View Pack</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <div class="card border rounded-4 p-4 shadow-sm h-100 d-flex flex-column bg-light">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="badge bg-primary text-white fw-bold"><i class="fas fa-code me-1"></i> Web Dev</span>
+            <span class="text-warning small fw-bold"><i class="fas fa-star"></i> 4.9</span>
+          </div>
+          <h5 class="fw-bold text-dark mb-2">Full-Stack Web Dev with Django</h5>
+          <p class="text-muted small mb-3 flex-grow-1">Semantic HTML5, CSS Grid/Flexbox, JavaScript ES6+, Django MVT, and REST APIs.</p>
+          <div class="d-flex justify-content-between align-items-baseline mt-auto pt-2 border-top">
+            <div>
+              <span class="fs-4 fw-extrabold text-primary">₹399</span>
+              <span class="text-muted text-decoration-line-through small ms-1">₹799</span>
+            </div>
+            <a href="{% url 'notes:marketplace' %}?category=web-development" class="btn btn-sm btn-primary rounded-pill px-3">View Pack</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <div class="card border rounded-4 p-4 shadow-sm h-100 d-flex flex-column bg-light">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="badge bg-success text-white fw-bold"><i class="fas fa-chart-line me-1"></i> Analytics</span>
+            <span class="text-warning small fw-bold"><i class="fas fa-star"></i> 4.9</span>
+          </div>
+          <h5 class="fw-bold text-dark mb-2">Data Analytics & Power BI</h5>
+          <p class="text-muted small mb-3 flex-grow-1">Power Query ETL, Star Schema data models, DAX formulas, and KPI dashboards.</p>
+          <div class="d-flex justify-content-between align-items-baseline mt-auto pt-2 border-top">
+            <div>
+              <span class="fs-4 fw-extrabold text-primary">₹399</span>
+              <span class="text-muted text-decoration-line-through small ms-1">₹799</span>
+            </div>
+            <a href="{% url 'notes:marketplace' %}?category=data-analytics" class="btn btn-sm btn-primary rounded-pill px-3">View Pack</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <div class="card border rounded-4 p-4 shadow-sm h-100 d-flex flex-column bg-light">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="badge bg-info text-dark fw-bold"><i class="fas fa-robot me-1"></i> AI Tools</span>
+            <span class="text-warning small fw-bold"><i class="fas fa-star"></i> 4.9</span>
+          </div>
+          <h5 class="fw-bold text-dark mb-2">Generative AI & Prompt Mastery</h5>
+          <p class="text-muted small mb-3 flex-grow-1">LLM architecture, CREATE framework, Few-Shot prompting, and AI productivity workflows.</p>
+          <div class="d-flex justify-content-between align-items-baseline mt-auto pt-2 border-top">
+            <div>
+              <span class="fs-4 fw-extrabold text-primary">₹249</span>
+              <span class="text-muted text-decoration-line-through small ms-1">₹499</span>
+            </div>
+            <a href="{% url 'notes:marketplace' %}?category=ai-tools" class="btn btn-sm btn-primary rounded-pill px-3">View Pack</a>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -224,9 +337,9 @@
       </div>
       <div class="col-md-3">
         <div class="p-4 bg-white border rounded-4 shadow-sm h-100">
-          <div class="fs-1 text-info mb-3"><i class="fas fa-play-circle"></i></div>
-          <h5 class="fw-bold">2. Learn Through Lessons</h5>
-          <p class="text-muted small">Study modules, watch videos, read tutorials, and track your completion progress in real time.</p>
+          <div class="fs-1 text-info mb-3"><i class="fas fa-book-reader"></i></div>
+          <h5 class="fw-bold">2. Master Structured Notes</h5>
+          <p class="text-muted small">Read comprehensive technical notes, code walkthroughs, diagrams, and cheat sheets with real-time tracking.</p>
         </div>
       </div>
       <div class="col-md-3">

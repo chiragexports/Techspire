@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}Course Content & Syllabus Management - TECHSPIRE Admin{% endblock %}
+
+{% block content %}
+<div class="py-4 bg-light min-vh-75">
+  <div class="container-fluid px-lg-5">
+
+    <!-- Breadcrumb & Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+      <div>
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb mb-1 small">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:admin_overview' %}">Admin Dashboard</a></li>
+            <li class="breadcrumb-item active">Content Management</li>
+          </ol>
+        </nav>
+        <h2 class="h3 fw-bold text-dark mb-0"><i class="fas fa-book text-primary me-2"></i>Curriculum Content & Notes Management</h2>
+        <small class="text-muted">Create, edit, organize modules, study notes, practice labs, and assessment quizzes.</small>
+      </div>
+
+      <div class="d-flex gap-2">
+        <a href="{% url 'dashboard:admin_course_create' %}" class="btn btn-warning fw-bold text-dark rounded-pill px-3 btn-sm">
+          <i class="fas fa-plus me-1"></i> Create New Course
+        </a>
+        <a href="{% url 'dashboard:admin_overview' %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+          <i class="fas fa-arrow-left me-1"></i> Dashboard
+        </a>
+      </div>
+    </div>
+
+    <!-- Courses Table Card -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle small mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Course Title</th>
+              <th>Category</th>
+              <th>Level</th>
+              <th>Modules</th>
+              <th>Lessons</th>
+              <th>Quizzes</th>
+              <th>Enrolled</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in courses %}
+              <tr>
+                <td>
+                  <div class="fw-bold text-dark">{{ c.title }}</div>
+                  <small class="text-muted font-monospace">/courses/{{ c.slug }}/</small>
+                </td>
+                <td><span class="badge bg-primary-subtle text-primary">{{ c.category.name }}</span></td>
+                <td><span class="badge bg-light text-dark border text-capitalize">{{ c.level }}</span></td>
+                <td class="fw-bold text-primary">{{ c.modules_count }}</td>
+                <td class="fw-bold text-dark">{{ c.total_lessons_count }}</td>
+                <td><span class="badge bg-warning-subtle text-warning-emphasis">{{ c.quiz_count }}</span></td>
+                <td class="fw-bold text-success">{{ c.enroll_count }}</td>
+                <td>
+                  {% if c.is_published %}
+                    <span class="badge bg-success-subtle text-success">Published</span>
+                  {% else %}
+                    <span class="badge bg-secondary-subtle text-secondary">Draft</span>
+                  {% endif %}
+                </td>
+                <td>
+                  <div class="d-flex gap-1">
+                    <a href="{% url 'dashboard:admin_lesson_analytics' course_id=c.id %}" class="btn btn-sm btn-outline-primary py-0 px-2" title="Manage Lessons & Notes">
+                      <i class="fas fa-list me-1"></i> Lessons
+                    </a>
+                    <a href="{% url 'dashboard:admin_course_edit' course_id=c.id %}" class="btn btn-sm btn-outline-secondary py-0 px-2" title="Edit Metadata">
+                      <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="{% url 'courses:course_detail' slug=c.slug %}" class="btn btn-sm btn-outline-dark py-0 px-2" target="_blank" title="Preview Public Page">
+                      <i class="fas fa-external-link-alt"></i>
+                    </a>
+                  </div>
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="9" class="text-center py-4 text-muted">No courses available.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

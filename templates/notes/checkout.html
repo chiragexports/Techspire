@@ -1,0 +1,151 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout: {{ item.title }} — TECHSPIRE Notes{% endblock %}
+
+{% block content %}
+<div class="py-5 bg-light min-vh-75">
+  <div class="container" style="max-width: 900px;">
+    
+    <div class="text-center mb-4">
+      <span class="badge bg-success-subtle text-success fw-bold px-3 py-1 rounded-pill mb-2">
+        <i class="fas fa-lock me-1"></i> 256-BIT ENCRYPTED CHECKOUT
+      </span>
+      <h2 class="fw-extrabold text-dark">Complete Your Study Pack Purchase</h2>
+      <p class="text-muted small">Unlock instant lifetime online reading access and downloadable watermarked PDF.</p>
+    </div>
+
+    <div class="row g-4">
+      <!-- Order Summary Card -->
+      <div class="col-md-7">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+          <h5 class="fw-bold text-dark mb-3"><i class="fas fa-shopping-bag text-primary me-2"></i> Order Summary</h5>
+
+          <div class="d-flex align-items-center gap-3 p-3 bg-light rounded-3 border mb-3">
+            <div class="bg-primary text-white rounded-3 p-3 d-flex align-items-center justify-content-center" style="width: 50px; height: 50px;">
+              <i class="fas fa-book-open fs-4"></i>
+            </div>
+            <div class="flex-grow-1">
+              <h6 class="fw-bold mb-0 text-dark">{{ item.title }}</h6>
+              <small class="text-muted">{% if item_type == 'bundle' %}Multi-Subject Notes Bundle{% else %}{{ item.version }} • {{ item.category.name }}{% endif %}</small>
+            </div>
+            <div class="fw-bold text-primary fs-5">
+              ₹<span id="displayBasePrice">{{ item.price }}</span>
+            </div>
+          </div>
+
+          <!-- Included Value Checklist -->
+          <ul class="list-unstyled small text-muted d-flex flex-column gap-2 mb-4 ps-1">
+            <li><i class="fas fa-check-circle text-success me-2"></i> Full Online Digital Textbook Reader</li>
+            <li><i class="fas fa-check-circle text-success me-2"></i> Downloadable Watermarked PDF Copy</li>
+            <li><i class="fas fa-check-circle text-success me-2"></i> Complete Code Walkthroughs & Cheat Sheets</li>
+            <li><i class="fas fa-check-circle text-success me-2"></i> Technical Interview Q&A Solutions</li>
+            <li><i class="fas fa-check-circle text-success me-2"></i> Lifetime License & Future Chapter Updates</li>
+          </ul>
+
+          <!-- Coupon Code Input -->
+          <div class="p-3 bg-light rounded-3 border mb-3">
+            <label class="form-label small fw-bold text-dark mb-1"><i class="fas fa-ticket-alt text-warning me-1"></i> Have a Discount Coupon?</label>
+            <div class="input-group input-group-sm">
+              <input type="text" id="couponInput" class="form-control text-uppercase font-monospace" placeholder="e.g. TECH10, NOTES50">
+              <button class="btn btn-dark fw-bold" type="button" id="applyCouponBtn">Apply</button>
+            </div>
+            <div id="couponMessage" class="small mt-1" style="display: none;"></div>
+          </div>
+
+          <!-- Price Calculation Breakdown -->
+          <div class="d-flex justify-content-between small text-muted mb-1">
+            <span>Subtotal</span>
+            <span>₹{{ item.original_price|default:item.price }}</span>
+          </div>
+          {% if item.savings_amount > 0 %}
+            <div class="d-flex justify-content-between small text-success mb-1">
+              <span>Launch Discount</span>
+              <span>-₹{{ item.savings_amount }}</span>
+            </div>
+          {% endif %}
+          <div class="d-flex justify-content-between small text-success mb-2" id="couponRow" style="display: none !important;">
+            <span>Coupon Discount</span>
+            <span id="couponDiscountValue">-₹0.00</span>
+          </div>
+          <div class="d-flex justify-content-between fs-5 fw-extrabold text-dark pt-2 border-top">
+            <span>Total Payable:</span>
+            <span class="text-primary">₹<span id="finalPayableAmount">{{ item.price }}</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Method & Action Card -->
+      <div class="col-md-5">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100 d-flex flex-column">
+          <h5 class="fw-bold text-dark mb-3"><i class="fas fa-credit-card text-success me-2"></i> Secure Payment</h5>
+
+          <!-- User Details -->
+          <div class="p-3 bg-light rounded-3 border mb-3 small">
+            <div class="text-muted">Billing Account:</div>
+            <strong class="text-dark">{{ user.full_name }}</strong>
+            <div class="text-muted font-monospace">{{ user.email }}</div>
+          </div>
+
+          <!-- Payment Options Preview -->
+          <div class="d-flex flex-column gap-2 mb-4">
+            <div class="form-check p-3 border rounded-3 bg-light">
+              <input class="form-check-input" type="radio" name="payOption" id="payUPI" checked>
+              <label class="form-check-label fw-bold text-dark small" for="payUPI">
+                <i class="fas fa-qrcode text-primary me-1"></i> Instant UPI / QR / NetBanking / Cards
+                <small class="text-muted d-block fw-normal">GPay, PhonePe, Paytm, All Major Cards</small>
+              </label>
+            </div>
+          </div>
+
+          <!-- Payment Form -->
+          <form action="{% url 'notes:verify_payment' %}" method="POST" class="mt-auto">
+            {% csrf_token %}
+            <input type="hidden" name="order_id" value="{{ order.order_id }}">
+            <input type="hidden" name="coupon_code" id="hiddenCouponCode" value="">
+            <input type="hidden" name="payment_id" value="PAY-INDORE-{{ order.order_id }}">
+
+            <button type="submit" class="btn btn-ts-primary w-100 py-3 fw-bold rounded-3 shadow fs-5 mb-2">
+              <i class="fas fa-lock me-2"></i> Pay ₹<span id="btnPayAmount">{{ item.price }}</span> & Unlock
+            </button>
+            <div class="text-center text-muted small" style="font-size: 0.75rem;">
+              <i class="fas fa-shield-alt text-success me-1"></i> 100% Secure Transaction & Instant Activation
+            </div>
+          </form>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('applyCouponBtn').addEventListener('click', function() {
+  const code = document.getElementById('couponInput').value.trim();
+  const baseAmount = parseFloat("{{ item.price }}");
+  const msgElem = document.getElementById('couponMessage');
+  
+  if (!code) return;
+
+  fetch(`{% url 'notes:check_coupon' %}?code=${encodeURIComponent(code)}&amount=${baseAmount}`)
+    .then(r => r.json())
+    .then(data => {
+      msgElem.style.display = 'block';
+      if (data.valid) {
+        msgElem.className = 'small mt-1 text-success fw-bold';
+        msgElem.textContent = `✓ ${data.message}`;
+        document.getElementById('couponRow').style.setProperty('display', 'flex', 'important');
+        document.getElementById('couponDiscountValue').textContent = `-₹${data.discount_value.toFixed(2)}`;
+        document.getElementById('finalPayableAmount').textContent = data.final_amount.toFixed(2);
+        document.getElementById('btnPayAmount').textContent = data.final_amount.toFixed(2);
+        document.getElementById('hiddenCouponCode').value = data.code;
+      } else {
+        msgElem.className = 'small mt-1 text-danger fw-bold';
+        msgElem.textContent = `✕ ${data.message}`;
+      }
+    });
+});
+</script>
+{% endblock %}

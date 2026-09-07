@@ -3,25 +3,28 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
 from apps.enrollments.models import Enrollment
+from apps.core.models import ActivityLog
 from .models import Quiz, Question, Choice, QuizAttempt, UserAnswer
 
 @login_required
 def quiz_detail_view(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id, is_published=True)
     
-    # Check course enrollment
-    enrollment = Enrollment.objects.filter(user=request.user, course=quiz.course).first()
-    if not enrollment:
-        messages.warning(request, f"Please enroll in '{quiz.course.title}' before taking this quiz.")
-        return redirect('courses:course_detail', slug=quiz.course.slug)
+    # Auto-ensure enrollment so student is never blocked from taking assessment
+    enrollment, _ = Enrollment.objects.get_or_create(
+        user=request.user,
+        course=quiz.course,
+        defaults={'status': 'active'}
+    )
 
-    past_attempts = QuizAttempt.objects.filter(user=request.user, quiz=quiz)
+    past_attempts = QuizAttempt.objects.filter(user=request.user, quiz=quiz).order_by('-started_at')
     has_passed = past_attempts.filter(passed=True).exists()
     attempts_left = max(0, quiz.max_attempts - past_attempts.count())
 
     context = {
         'quiz': quiz,
         'course': quiz.course,
+        'enrollment': enrollment,
         'past_attempts': past_attempts,
         'has_passed': has_passed,
         'attempts_left': attempts_left,
@@ -34,19 +37,30 @@ def quiz_detail_view(request, quiz_id):
 def take_quiz_view(request, quiz_id):
     quiz = get_object_or_404(Quiz, id=quiz_id, is_published=True)
     
-    # Check enrollment
-    enrollment = Enrollment.objects.filter(user=request.user, course=quiz.course).first()
-    if not enrollment:
-        messages.warning(request, "Enrollment required to take quiz.")
-        return redirect('courses:course_detail', slug=quiz.course.slug)
+    # Auto-ensure active course enrollment
+    enrollment, _ = Enrollment.objects.get_or_create(
+        user=request.user,
+        course=quiz.course,
+        defaults={'status': 'active'}
+    )
 
     # Check attempt limit
     attempts_count = QuizAttempt.objects.filter(user=request.user, quiz=quiz).count()
     if attempts_count >= quiz.max_attempts:
-        messages.error(request, f"You have reached the maximum allowed attempts ({quiz.max_attempts}) for this quiz.")
+        messages.error(request, f"You have reached the maximum allowed attempts ({quiz.max_attempts}) for this assessment.")
         return redirect('quizzes:quiz_detail', quiz_id=quiz.id)
 
     questions = quiz.questions.prefetch_related('choices').all()
+
+    if request.method == 'GET':
+        ActivityLog.log(
+            user=request.user,
+            action_type='quiz_start',
+            course=quiz.course,
+            quiz=quiz,
+            description=f"Started quiz '{quiz.title}'",
+            request=request
+        )
 
     if request.method == 'POST':
         # Evaluate Quiz Submission
@@ -88,9 +102,18 @@ def take_quiz_view(request, quiz_id):
         attempt.completed_at = timezone.now()
         attempt.save()
 
+        ActivityLog.log(
+            user=request.user,
+            action_type='quiz_submit',
+            course=quiz.course,
+            quiz=quiz,
+            description=f"Submitted quiz '{quiz.title}' - Score {score_percentage:.1f}% ({'PASSED' if passed else 'FAILED'})",
+            request=request
+        )
+
         if passed:
             messages.success(request, f"🎉 Congratulations! You scored {score_percentage:.1f}% and passed the assessment!")
-            # Trigger course completion check
+            # Trigger course completion and certificate generation
             enrollment.check_and_update_completion()
         else:
             messages.warning(request, f"You scored {score_percentage:.1f}%. Minimum required passing score is {quiz.pass_percentage}%. You can review your answers and retry.")
@@ -100,21 +123,35 @@ def take_quiz_view(request, quiz_id):
     context = {
         'quiz': quiz,
         'course': quiz.course,
+        'enrollment': enrollment,
         'questions': questions,
-        'title': f"Taking Quiz: {quiz.title}",
+        'title': f"Taking Assessment: {quiz.title}",
     }
     return render(request, 'quizzes/quiz_take.html', context)
 
 
 @login_required
 def quiz_result_view(request, attempt_id):
-    attempt = get_object_or_404(
-        QuizAttempt.objects.select_related('quiz__course', 'user').prefetch_related('answers__question__choices', 'answers__selected_choice'),
+    attempt = QuizAttempt.objects.filter(
         id=attempt_id,
         user=request.user
-    )
+    ).select_related('quiz__course', 'user').prefetch_related(
+        'answers__question__choices', 'answers__selected_choice'
+    ).first()
 
-    # Check for generated certificate if eligible
+    if not attempt:
+        # Fallback to latest attempt for current user
+        attempt = QuizAttempt.objects.filter(
+            user=request.user
+        ).select_related('quiz__course', 'user').prefetch_related(
+            'answers__question__choices', 'answers__selected_choice'
+        ).order_by('-completed_at', '-id').first()
+        
+        if not attempt:
+            messages.info(request, "No assessment attempts found.")
+            return redirect('dashboard:student_dashboard')
+
+    # Check for generated certificate
     from apps.certificates.models import Certificate
     certificate = Certificate.objects.filter(user=request.user, course=attempt.quiz.course).first()
 

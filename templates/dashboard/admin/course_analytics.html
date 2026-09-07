@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block title %}Course Performance & Telemetry Analytics - TECHSPIRE Admin{% endblock %}
+
+{% block content %}
+<div class="py-4 bg-light min-vh-75">
+  <div class="container-fluid px-lg-5">
+
+    <!-- Breadcrumb & Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+      <div>
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb mb-1 small">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:admin_overview' %}">Admin Dashboard</a></li>
+            <li class="breadcrumb-item active">Course Analytics</li>
+          </ol>
+        </nav>
+        <h2 class="h3 fw-bold text-dark mb-0"><i class="fas fa-chart-line text-primary me-2"></i>Course Performance & Telemetry</h2>
+        <small class="text-muted">Real database metrics across learner enrollments, completion rates, and assessment performance.</small>
+      </div>
+
+      <div class="d-flex gap-2">
+        <a href="{% url 'dashboard:admin_export_csv' report_type='progress' %}" class="btn btn-outline-dark btn-sm rounded-pill px-3">
+          <i class="fas fa-download me-1"></i> Export Progress CSV
+        </a>
+        <a href="{% url 'dashboard:admin_overview' %}" class="btn btn-primary btn-sm rounded-pill px-3">
+          <i class="fas fa-arrow-left me-1"></i> Back to Dashboard
+        </a>
+      </div>
+    </div>
+
+    <!-- Course Analytics Table Card -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle small mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Course Title & Category</th>
+              <th>Total Enrolled</th>
+              <th>Active Learners</th>
+              <th>Completed</th>
+              <th>Avg Course Progress</th>
+              <th>Quiz Attempts</th>
+              <th>Pass Rate</th>
+              <th>Avg Quiz Score</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in courses_analytics %}
+              <tr>
+                <td>
+                  <div class="fw-bold text-dark">{{ item.course.title }}</div>
+                  <span class="badge bg-primary-subtle text-primary">{{ item.course.category.name }}</span>
+                  <span class="badge bg-light text-muted border text-capitalize">{{ item.course.level }}</span>
+                  <small class="text-muted ms-2">{{ item.total_lessons }} Lessons</small>
+                </td>
+                <td class="fw-bold text-dark fs-6">{{ item.total_enrolled }}</td>
+                <td class="fw-bold text-warning-emphasis">{{ item.active_learners }}</td>
+                <td class="fw-bold text-success">{{ item.completed_learners }}</td>
+                <td>
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="progress flex-grow-1" style="height: 6px; width: 80px;">
+                      <div class="progress-bar bg-primary" role="progressbar" style="width: {{ item.avg_progress }}%;"></div>
+                    </div>
+                    <span class="fw-bold">{{ item.avg_progress }}%</span>
+                  </div>
+                </td>
+                <td>{{ item.quiz_attempts_count }}</td>
+                <td>
+                  <span class="badge {% if item.pass_rate >= 70 %}bg-success{% elif item.pass_rate >= 40 %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                    {{ item.pass_rate }}%
+                  </span>
+                </td>
+                <td class="fw-bold text-primary">{{ item.avg_score }}%</td>
+                <td>
+                  <a href="{% url 'dashboard:admin_lesson_analytics' course_id=item.course.id %}" class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 fw-semibold">
+                    <i class="fas fa-layer-group me-1"></i> Lesson Telemetry
+                  </a>
+                </td>
+              </tr>
+            {% empty %}
+              <tr><td colspan="9" class="text-center py-4 text-muted">No courses found.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

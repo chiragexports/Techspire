@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}My Purchased Notes & Study Materials — TECHSPIRE{% endblock %}
+
+{% block content %}
+<div class="py-5 bg-light min-vh-75">
+  <div class="container">
+    
+    <!-- Top Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+      <div>
+        <span class="badge bg-warning text-dark fw-bold px-3 py-1 rounded-pill mb-1">DIGITAL LIBRARY</span>
+        <h2 class="fw-extrabold text-dark mb-0">My Purchased Notes & Study Materials</h2>
+      </div>
+      <div class="d-flex gap-2">
+        <a href="{% url 'notes:marketplace' %}" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold">
+          <i class="fas fa-plus me-1"></i> Browse More Notes
+        </a>
+        <a href="{% url 'notes:my_orders' %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+          <i class="fas fa-receipt me-1"></i> Order History
+        </a>
+      </div>
+    </div>
+
+    <!-- Notes Cards Grid -->
+    <div class="row g-4">
+      {% for item in products_with_progress %}
+        <div class="col-lg-6">
+          <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100 d-flex flex-column">
+            
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="badge bg-primary-subtle text-primary fw-bold px-3 py-1 rounded-pill">
+                <i class="{{ item.product.category.icon_class }} me-1"></i> {{ item.product.category.name }}
+              </span>
+              <span class="badge bg-success text-white fw-bold">ACTIVE LICENSE</span>
+            </div>
+
+            <h4 class="fw-bold text-dark mb-1">
+              <a href="{% url 'notes:reader' product_slug=item.product.slug %}" class="text-dark text-decoration-none hover-primary">
+                {{ item.product.title }}
+              </a>
+            </h4>
+            <p class="text-muted small mb-3">{{ item.product.version }} • {{ item.product.total_chapters_count }} Chapters</p>
+
+            <!-- Progress Bar -->
+            <div class="mb-4">
+              <div class="d-flex justify-content-between small mb-1">
+                <span class="text-muted">Reading Progress</span>
+                <span class="fw-bold text-primary">{{ item.progress_percentage }}% Completed</span>
+              </div>
+              <div class="progress" style="height: 8px;">
+                <div class="progress-bar bg-primary" role="progressbar" style="width: {{ item.progress_percentage }}%;"></div>
+              </div>
+            </div>
+
+            <!-- Bottom Actions -->
+            <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mt-auto pt-3 border-top">
+              <a href="{% url 'notes:download_pdf' slug=item.product.slug %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+                <i class="fas fa-file-pdf text-danger me-1"></i> Download PDF
+              </a>
+
+              <a href="{% url 'notes:reader' product_slug=item.product.slug %}" class="btn btn-ts-primary btn-sm rounded-pill px-4 fw-bold">
+                <i class="fas fa-book-reader me-1"></i> Continue Reading
+              </a>
+            </div>
+
+          </div>
+        </div>
+      {% empty %}
+        <div class="col-12 text-center py-5">
+          <div class="card border-0 shadow-sm rounded-4 p-5 bg-white">
+            <i class="fas fa-book-open display-4 text-muted mb-3"></i>
+            <h4 class="fw-bold">No Notes Purchased Yet</h4>
+            <p class="text-muted small mb-4">You haven't unlocked any premium technical notes packs yet. Explore our high-yield study notes with code walkthroughs, diagrams, and interview kits.</p>
+            <div>
+              <a href="{% url 'notes:marketplace' %}" class="btn btn-ts-primary rounded-pill px-4 py-2 fw-bold">
+                <i class="fas fa-shopping-bag me-1"></i> Explore Premium Notes Store
+              </a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+
+    <!-- Bookmarks Section -->
+    {% if bookmarks %}
+      <div class="mt-5">
+        <h4 class="fw-bold text-dark mb-3"><i class="fas fa-bookmark text-warning me-2"></i> My Bookmarked Chapters</h4>
+        
+        <div class="row g-3">
+          {% for bm in bookmarks %}
+            <div class="col-md-6 col-lg-4">
+              <div class="card border rounded-3 p-3 bg-white h-100 d-flex flex-column">
+                <small class="text-primary fw-bold mb-1">{{ bm.chapter.product.title }}</small>
+                <h6 class="fw-bold text-dark mb-2">Ch {{ bm.chapter.order }}: {{ bm.chapter.title }}</h6>
+                <div class="d-flex justify-content-between align-items-center mt-auto pt-2 border-top small">
+                  <span class="text-muted">{{ bm.created_at|date:"d M Y" }}</span>
+                  <a href="{% url 'notes:reader_chapter' product_slug=bm.chapter.product.slug chapter_slug=bm.chapter.slug %}" class="btn btn-sm btn-outline-primary py-0 px-2">
+                    Open Chapter &rarr;
+                  </a>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}

@@ -8,6 +8,8 @@ from django.views.generic import CreateView, UpdateView
 from .forms import StudentRegistrationForm, StudentLoginForm, UserProfileUpdateForm, StudentProfileDetailsForm
 from .models import User, StudentProfile
 
+from apps.core.models import ActivityLog
+
 class RegisterView(CreateView):
     model = User
     form_class = StudentRegistrationForm
@@ -21,7 +23,25 @@ class RegisterView(CreateView):
 
     def form_valid(self, form):
         user = form.save()
-        login(self.request, user)
+        login(self.request, user, backend='apps.accounts.backends.PersistentAuthBackend')
+        self.request.session['auth_user_id'] = user.id
+        self.request.session['auth_user_email'] = user.email
+        self.request.session['auth_user_name'] = user.full_name
+        self.request.session.modified = True
+        
+        ActivityLog.log(
+            user=user,
+            action_type='signup',
+            description=f"New student registration: {user.email}",
+            request=self.request
+        )
+        ActivityLog.log(
+            user=user,
+            action_type='login',
+            description=f"Automatic login after registration for {user.email}",
+            request=self.request
+        )
+
         messages.success(self.request, f"Welcome to TECHSPIRE Learning, {user.first_name}! Your account has been created successfully.")
         return redirect(self.request.GET.get('next') or self.success_url)
 
@@ -39,10 +59,25 @@ class CustomLoginView(LoginView):
         next_url = self.request.GET.get('next') or self.request.POST.get('next')
         if next_url:
             return next_url
+        if self.request.user.is_staff or self.request.user.role == 'admin':
+            return reverse_lazy('dashboard:admin_overview')
         return reverse_lazy('dashboard:student_dashboard')
 
     def form_valid(self, form):
-        messages.success(self.request, f"Welcome back, {form.get_user().first_name or form.get_user().username}!")
+        user = form.get_user()
+        self.request.session['auth_user_id'] = user.id
+        self.request.session['auth_user_email'] = user.email
+        self.request.session['auth_user_name'] = user.full_name
+        self.request.session.modified = True
+
+        ActivityLog.log(
+            user=user,
+            action_type='login',
+            description=f"User logged in ({user.role})",
+            request=self.request
+        )
+
+        messages.success(self.request, f"Welcome back, {user.first_name or user.username}!")
         return super().form_valid(form)
 
     def form_invalid(self, form):
@@ -51,6 +86,13 @@ class CustomLoginView(LoginView):
 
 
 def user_logout(request):
+    if request.user.is_authenticated:
+        ActivityLog.log(
+            user=request.user,
+            action_type='logout',
+            description=f"User logged out ({request.user.email})",
+            request=request
+        )
     logout(request)
     messages.info(request, "You have been logged out successfully. Keep learning!")
     return redirect('core:home')

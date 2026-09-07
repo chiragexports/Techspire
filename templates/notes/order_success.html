@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block title %}Purchase Successful — Access Unlocked | TECHSPIRE Notes{% endblock %}
+
+{% block content %}
+<div class="py-5 bg-light min-vh-75 d-flex align-items-center">
+  <div class="container" style="max-width: 680px;">
+    
+    <div class="card border-0 shadow-lg rounded-4 p-4 p-md-5 bg-white text-center">
+      
+      <div class="bg-success text-white rounded-circle p-3 d-inline-flex align-items-center justify-content-center mx-auto mb-3 shadow" style="width: 70px; height: 70px;">
+        <i class="fas fa-check fs-2"></i>
+      </div>
+
+      <span class="badge bg-success-subtle text-success fw-bold px-3 py-1 rounded-pill mb-2">PAYMENT VERIFIED & ACTIVATED</span>
+      <h2 class="fw-extrabold text-dark mb-2">Thank You for Your Purchase!</h2>
+      <p class="text-muted small mb-4">
+        Your complete notes pack has been successfully unlocked on your account. You now have lifetime access to the online reader and watermarked PDF downloads.
+      </p>
+
+      <!-- Order Receipt Details -->
+      <div class="p-3 bg-light rounded-3 border text-start mb-4 small">
+        <div class="d-flex justify-content-between mb-1">
+          <span class="text-muted">Order ID:</span>
+          <span class="font-monospace fw-bold text-dark">{{ order.order_id }}</span>
+        </div>
+        <div class="d-flex justify-content-between mb-1">
+          <span class="text-muted">Product:</span>
+          <strong class="text-primary">{{ order.product.title|default:order.bundle.title }}</strong>
+        </div>
+        <div class="d-flex justify-content-between mb-1">
+          <span class="text-muted">Amount Paid:</span>
+          <span class="fw-bold text-dark">₹{{ order.amount }} ({{ order.currency }})</span>
+        </div>
+        <div class="d-flex justify-content-between">
+          <span class="text-muted">Date & Time:</span>
+          <span class="text-dark">{{ order.updated_at|date:"d M Y, h:i A" }}</span>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="d-flex flex-column gap-2 mb-3">
+        {% if order.product %}
+          <a href="{% url 'notes:reader' product_slug=order.product.slug %}" class="btn btn-ts-primary py-3 fw-bold rounded-pill shadow fs-5">
+            <i class="fas fa-book-reader me-2"></i> Open Digital Notes Reader
+          </a>
+          <a href="{% url 'notes:download_pdf' slug=order.product.slug %}" class="btn btn-outline-primary py-2 fw-bold rounded-pill">
+            <i class="fas fa-download me-2"></i> Download Watermarked PDF
+          </a>
+        {% elif order.bundle %}
+          <a href="{% url 'notes:my_notes' %}" class="btn btn-ts-primary py-3 fw-bold rounded-pill shadow fs-5">
+            <i class="fas fa-layer-group me-2"></i> View All Unlocked Notes in My Dashboard
+          </a>
+        {% endif %}
+      </div>
+
+      <div class="text-center">
+        <a href="{% url 'notes:my_notes' %}" class="text-decoration-none small text-muted">
+          Go to <strong class="text-dark">My Notes Dashboard</strong> &rarr;
+        </a>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+
+{% block title %}Learner Journey: {{ target_user.full_name }} - TECHSPIRE Admin{% endblock %}
+
+{% block content %}
+<div class="py-4 bg-light min-vh-75">
+  <div class="container-fluid px-lg-5">
+
+    <!-- Breadcrumb & Header Bar -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+      <div>
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb mb-1 small">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:admin_overview' %}">Admin Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:admin_users_list' %}">User Directory</a></li>
+            <li class="breadcrumb-item active">{{ target_user.full_name }}</li>
+          </ol>
+        </nav>
+        <h2 class="h3 fw-bold text-dark mb-0"><i class="fas fa-id-badge text-primary me-2"></i>Learner 360° Learning Dossier</h2>
+      </div>
+
+      <div class="d-flex gap-2 align-items-center">
+        <form action="{% url 'dashboard:admin_user_toggle_status' user_id=target_user.id %}" method="POST" class="d-inline" onsubmit="return confirm('Are you sure you want to change the active status of this account?');">
+          {% csrf_token %}
+          {% if target_user.is_active %}
+            <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+              <i class="fas fa-user-slash me-1"></i> Disable Account
+            </button>
+          {% else %}
+            <button type="submit" class="btn btn-outline-success btn-sm rounded-pill px-3">
+              <i class="fas fa-user-check me-1"></i> Enable Account
+            </button>
+          {% endif %}
+        </form>
+
+        <a href="{% url 'dashboard:admin_users_list' %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+          <i class="fas fa-arrow-left me-1"></i> User List
+        </a>
+      </div>
+    </div>
+
+    <!-- Student Metadata Profile Card -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+      <div class="row g-4 align-items-center">
+        <div class="col-md-2 text-center text-md-start">
+          <div class="avatar-lg bg-primary-subtle text-primary rounded-circle d-inline-flex align-items-center justify-content-center" style="width: 80px; height: 80px; font-size: 2rem; font-weight: bold;">
+            {{ target_user.first_name|first|default:target_user.username|first|upper }}
+          </div>
+        </div>
+
+        <div class="col-md-6">
+          <div class="d-flex align-items-center gap-2 mb-1">
+            <h4 class="fw-bold text-dark mb-0">{{ target_user.full_name }}</h4>
+            <span class="badge {% if target_user.role == 'admin' %}bg-danger{% elif target_user.role == 'instructor' %}bg-warning text-dark{% else %}bg-primary-subtle text-primary{% endif %} text-capitalize">
+              {{ target_user.role }}
+            </span>
+            {% if target_user.is_active %}
+              <span class="badge bg-success-subtle text-success">Active</span>
+            {% else %}
+              <span class="badge bg-danger-subtle text-danger">Disabled</span>
+            {% endif %}
+          </div>
+          <div class="text-muted small font-monospace mb-2">{{ target_user.email }}</div>
+          <div class="small text-secondary">
+            <span class="me-3"><i class="fas fa-graduation-cap text-primary me-1"></i>{{ target_user.profile.education|default:"Independent Learner" }}</span>
+            <span class="me-3"><i class="fas fa-map-marker-alt text-danger me-1"></i>{{ target_user.profile.city|default:"Indore" }}, {{ target_user.profile.country|default:"India" }}</span>
+          </div>
+        </div>
+
+        <div class="col-md-4 text-md-end">
+          <div class="p-3 bg-light rounded-3 text-start d-inline-block small">
+            <div><strong>Registered:</strong> {{ target_user.date_joined|date:"M d, Y H:i" }}</div>
+            <div><strong>Last Login:</strong> {{ target_user.last_login|date:"M d, Y H:i"|default:"Never logged in" }}</div>
+            <div><strong>Total Enrollments:</strong> {{ enrollment_details|length }} Courses</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Enrolled Courses & Detailed Progress -->
+    <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+      <h5 class="fw-bold text-dark mb-3"><i class="fas fa-book-reader text-primary me-2"></i>Course Progress & Completion Status</h5>
+
+      <div class="row g-4">
+        {% for item in enrollment_details %}
+          <div class="col-lg-6">
+            <div class="p-4 bg-light rounded-4 border h-100">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="badge bg-primary-subtle text-primary fw-bold">{{ item.course.category.name }}</span>
+                {% if item.status == 'completed' %}
+                  <span class="badge bg-success"><i class="fas fa-check-circle me-1"></i>COMPLETED</span>
+                {% else %}
+                  <span class="badge bg-warning text-dark"><i class="fas fa-spinner fa-spin me-1"></i>IN PROGRESS</span>
+                {% endif %}
+              </div>
+
+              <h5 class="fw-bold text-dark mb-2">{{ item.course.title }}</h5>
+
+              <!-- Progress Bar -->
+              <div class="mb-3">
+                <div class="d-flex justify-content-between small fw-bold mb-1">
+                  <span>Progress</span>
+                  <span class="text-primary">{{ item.progress_percentage }}%</span>
+                </div>
+                <div class="progress" style="height: 10px;">
+                  <div class="progress-bar bg-primary" role="progressbar" style="width: {{ item.progress_percentage }}%;"></div>
+                </div>
+              </div>
+
+              <div class="row g-2 small text-muted mb-3">
+                <div class="col-6">
+                  <i class="fas fa-check-double text-success me-1"></i> Lessons: <strong>{{ item.completed_lessons }}/{{ item.total_lessons }}</strong>
+                </div>
+                <div class="col-6">
+                  <i class="fas fa-award text-warning me-1"></i> Quiz Avg: <strong>{{ item.avg_score|default:"No attempts" }}{% if item.avg_score %}%{% endif %}</strong>
+                </div>
+                <div class="col-12">
+                  <i class="fas fa-compass text-primary me-1"></i> Last Lesson: <strong>{{ item.last_accessed.title|default:"Not recorded" }}</strong>
+                </div>
+                <div class="col-12">
+                  <i class="fas fa-calendar-alt text-muted me-1"></i> Enrolled: {{ item.enrolled_at|date:"M d, Y" }}
+                  {% if item.completed_at %}
+                    • Completed: {{ item.completed_at|date:"M d, Y" }}
+                  {% endif %}
+                </div>
+              </div>
+
+              <div class="d-flex gap-2">
+                <a href="{% url 'courses:course_detail' slug=item.course.slug %}" class="btn btn-sm btn-outline-primary rounded-pill px-3" target="_blank">
+                  View Syllabus
+                </a>
+                <a href="{% url 'dashboard:admin_lesson_analytics' course_id=item.course.id %}" class="btn btn-sm btn-outline-dark rounded-pill px-3">
+                  Lesson Telemetry
+                </a>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="col-12 text-center py-4 text-muted">
+            <i class="fas fa-book-open fs-2 mb-2 d-block"></i>
+            This learner is not currently enrolled in any courses.
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- 2 Column Section: Quiz Attempts & Activity Timeline -->
+    <div class="row g-4">
+      <!-- Quiz Performance History -->
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+          <h5 class="fw-bold text-dark mb-3"><i class="fas fa-award text-warning me-2"></i>Assessment & Quiz History</h5>
+
+          <div class="table-responsive">
+            <table class="table table-hover align-middle small mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Assessment</th>
+                  <th>Score</th>
+                  <th>Status</th>
+                  <th>Date Attempted</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for att in quiz_attempts %}
+                  <tr>
+                    <td>
+                      <div class="fw-bold text-dark">{{ att.quiz.title }}</div>
+                      <small class="text-muted">{{ att.quiz.course.title }}</small>
+                    </td>
+                    <td>
+                      <span class="fw-bold">{{ att.score }}%</span>
+                      <small class="text-muted d-block">({{ att.points_scored }}/{{ att.total_points }} pts)</small>
+                    </td>
+                    <td>
+                      {% if att.passed %}
+                        <span class="badge bg-success">PASSED</span>
+                      {% else %}
+                        <span class="badge bg-danger">FAILED</span>
+                      {% endif %}
+                    </td>
+                    <td>{{ att.started_at|date:"M d, Y H:i" }}</td>
+                  </tr>
+                {% empty %}
+                  <tr><td colspan="4" class="text-center text-muted py-3">No assessment attempts recorded for this user.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Chronological Activity Feed -->
+      <div class="col-lg-6">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100">
+          <h5 class="fw-bold text-dark mb-3"><i class="fas fa-stream text-primary me-2"></i>Chronological Activity Timeline</h5>
+
+          <div class="d-flex flex-column gap-3" style="max-height: 450px; overflow-y: auto;">
+            {% for act in activities %}
+              <div class="p-3 bg-light rounded-3 border-start border-3 {% if act.action_type == 'course_complete' %}border-success{% elif act.action_type == 'quiz_submit' %}border-warning{% else %}border-primary{% endif %}">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <span class="badge {% if act.action_type == 'course_complete' %}bg-success{% elif act.action_type == 'quiz_submit' %}bg-warning text-dark{% else %}bg-primary{% endif %}" style="font-size: 0.68rem;">
+                    {{ act.get_action_type_display }}
+                  </span>
+                  <small class="text-muted">{{ act.created_at|date:"M d, Y H:i" }}</small>
+                </div>
+                <div class="small text-dark fw-semibold">{{ act.description }}</div>
+                {% if act.ip_address %}
+                  <small class="text-muted font-monospace" style="font-size: 0.7rem;">IP: {{ act.ip_address }}</small>
+                {% endif %}
+              </div>
+            {% empty %}
+              <div class="text-center text-muted py-4 small">
+                No activity logs recorded for this learner.
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

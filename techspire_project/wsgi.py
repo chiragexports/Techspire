@@ -11,23 +11,29 @@ from django.core.wsgi import get_wsgi_application
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'techspire_project.settings')
 
 def ensure_sqlite_db():
+    if os.environ.get('DATABASE_URL'):
+        return
     try:
         dest_db = Path('/tmp/db.sqlite3')
-        if not dest_db.exists() or dest_db.stat().st_size == 0:
-            candidates = [
-                Path(__file__).resolve().parent.parent / 'db.sqlite3',
-                Path.cwd() / 'db.sqlite3',
-                Path('/var/task/db.sqlite3'),
-            ]
-            copied = False
-            for src in candidates:
-                if src.exists() and src.stat().st_size > 0:
-                    shutil.copy2(src, dest_db)
-                    copied = True
-                    break
-            if not copied and (os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME')):
-                from django.core.management import call_command
-                call_command('migrate', interactive=False)
+        candidates = [
+            Path(__file__).resolve().parent.parent / 'db.sqlite3',
+            Path.cwd() / 'db.sqlite3',
+            Path('/var/task/db.sqlite3'),
+        ]
+        best_src = None
+        best_size = 0
+        for src in candidates:
+            if src.exists() and src.stat().st_size > best_size:
+                best_src = src
+                best_size = src.stat().st_size
+
+        if best_src:
+            dest_size = dest_db.stat().st_size if dest_db.exists() else 0
+            if dest_size < best_size:
+                shutil.copy2(best_src, dest_db)
+        elif not dest_db.exists() and (os.environ.get('VERCEL') or os.environ.get('AWS_LAMBDA_FUNCTION_NAME')):
+            from django.core.management import call_command
+            call_command('migrate', interactive=False)
     except Exception as e:
         print(f"Notice during db setup: {e}", file=sys.stderr)
 

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load notes_tags %}
 
 {% block title %}{{ course.title }} - TECHSPIRE Learning{% endblock %}
 
@@ -16,14 +17,19 @@
           </ol>
         </nav>
 
+        <span class="badge bg-warning text-dark fw-bold px-3 py-1 rounded-pill mb-2">
+          <i class="{{ course.category.icon_class }} me-1"></i> {{ course.category.name }}
+        </span>
+
         <h1 class="display-6 fw-bold mb-3">{{ course.title }}</h1>
         <p class="lead text-white-50 mb-4">{{ course.short_description }}</p>
 
         <div class="d-flex flex-wrap align-items-center gap-4 text-white-50 small">
-          <div><i class="fas fa-user-tie text-warning me-1"></i> Instructor: <strong class="text-white">{{ course.instructor_name }}</strong></div>
+          <div><i class="fas fa-user-tie text-warning me-1"></i> Mentor: <strong class="text-white">{{ course.instructor_name }}</strong></div>
           <div><i class="fas fa-signal text-info me-1"></i> Level: <strong class="text-white">{{ course.get_level_display }}</strong></div>
           <div><i class="fas fa-clock text-secondary me-1"></i> Duration: <strong class="text-white">{{ course.duration_hours }} Hours</strong></div>
           <div><i class="fas fa-star text-warning me-1"></i> Rating: <strong class="text-white">{{ course.average_rating }} / 5.0</strong></div>
+          <div><i class="fas fa-certificate text-success me-1"></i> Certificate: <strong class="text-white">Included</strong></div>
         </div>
       </div>
     </div>
@@ -35,14 +41,15 @@
     <div class="row g-5">
       <!-- Main Content Column -->
       <div class="col-lg-8">
+        
         <!-- What You Will Learn Card -->
         {% if course.learning_points_list %}
           <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
-            <h4 class="fw-bold mb-3"><i class="fas fa-check-circle text-success me-2"></i> What You'll Learn</h4>
-            <div class="row g-2">
+            <h4 class="fw-bold mb-3 text-dark"><i class="fas fa-check-circle text-success me-2"></i> What You'll Master</h4>
+            <div class="row g-3">
               {% for point in course.learning_points_list %}
-                <div class="col-md-6 d-flex align-items-start gap-2 small text-muted">
-                  <i class="fas fa-check text-primary mt-1"></i>
+                <div class="col-md-6 d-flex align-items-start gap-2 small text-secondary">
+                  <i class="fas fa-check-circle text-primary mt-1"></i>
                   <span>{{ point }}</span>
                 </div>
               {% endfor %}
@@ -50,34 +57,72 @@
           </div>
         {% endif %}
 
-        <!-- Course Description -->
+        <!-- Course Roadmap & Milestones -->
+        {% if course.roadmap_list %}
+          <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h4 class="fw-bold mb-0 text-dark"><i class="fas fa-route text-primary me-2"></i> Learning Roadmap & Milestones</h4>
+              <span class="badge bg-primary-subtle text-primary fw-bold rounded-pill px-3 py-1">Step-by-Step</span>
+            </div>
+            <p class="text-muted small mb-4">Follow this structured path designed to take you from foundational understanding to production proficiency.</p>
+            
+            <div class="roadmap-timeline">
+              {% for step in course.roadmap_list %}
+                <div class="roadmap-item">
+                  <div class="roadmap-marker">{{ forloop.counter }}</div>
+                  <div class="bg-light p-3 rounded-3 border">
+                    <div class="fw-bold text-dark small">{{ step }}</div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Course Overview & Prerequisites -->
         <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
-          <h4 class="fw-bold mb-3">Course Overview</h4>
-          <p class="text-muted">{{ course.description|linebreaks }}</p>
+          <h4 class="fw-bold mb-3 text-dark"><i class="fas fa-book-open text-primary me-2"></i> Course Overview</h4>
+          <div class="text-secondary" style="line-height: 1.8;">
+            {{ course.description|linebreaks }}
+          </div>
 
           {% if course.requirements_list %}
-            <h5 class="fw-bold mt-4 mb-2">Requirements & Prerequisites</h5>
-            <ul class="text-muted small mb-0 ps-3">
+            <h5 class="fw-bold mt-4 mb-2 text-dark"><i class="fas fa-list-check text-warning me-2"></i> Prerequisites & Requirements</h5>
+            <ul class="text-secondary small mb-0 ps-3">
               {% for req in course.requirements_list %}
-                <li>{{ req }}</li>
+                <li class="mb-1">{{ req }}</li>
               {% endfor %}
             </ul>
           {% endif %}
+
+          {% if course.career_list %}
+            <h5 class="fw-bold mt-4 mb-2 text-dark"><i class="fas fa-briefcase text-success me-2"></i> Targeted Career Opportunities</h5>
+            <div class="d-flex flex-wrap gap-2 mt-2">
+              {% for role in course.career_list %}
+                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-semibold">
+                  <i class="fas fa-arrow-circle-right me-1"></i> {{ role }}
+                </span>
+              {% endfor %}
+            </div>
+          {% endif %}
         </div>
 
-        <!-- Curriculum & Syllabus -->
+        <!-- Curriculum & Modules Breakdown -->
         <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
           <div class="d-flex justify-content-between align-items-center mb-3">
-            <h4 class="fw-bold mb-0">Course Curriculum</h4>
-            <span class="text-muted small">{{ course.total_modules_count }} Modules • {{ course.total_lessons_count }} Lessons</span>
+            <div>
+              <h4 class="fw-bold mb-0 text-dark"><i class="fas fa-layer-group text-primary me-2"></i> Course Curriculum</h4>
+              <small class="text-muted">{{ course.total_modules_count }} Modules • {{ course.total_lessons_count }} Lessons</small>
+            </div>
+            <span class="badge bg-info-subtle text-info-emphasis fw-bold px-3 py-1 rounded-pill">Comprehensive Notes & Labs</span>
           </div>
 
           <div class="accordion shadow-none" id="curriculumAccordion">
             {% for module in course.modules.all %}
               <div class="accordion-item border rounded-3 mb-2 overflow-hidden">
                 <h2 class="accordion-header" id="headingMod{{ module.id }}">
-                  <button class="accordion-button {% if not forloop.first %}collapsed{% endif %} bg-light fw-bold text-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMod{{ module.id }}">
-                    <i class="fas fa-folder-open text-primary me-2"></i> {{ module.title }}
+                  <button class="accordion-button {% if not forloop.first %}collapsed{% endif %} bg-light fw-bold text-dark py-3 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseMod{{ module.id }}">
+                    <span class="text-primary me-2">Module {{ module.order }}:</span> {{ module.title }}
                   </button>
                 </h2>
                 <div id="collapseMod{{ module.id }}" class="accordion-collapse collapse {% if forloop.first %}show{% endif %}" data-bs-parent="#curriculumAccordion">
@@ -86,16 +131,14 @@
                       {% for lesson in module.lessons.all %}
                         <li class="list-group-item d-flex justify-content-between align-items-center py-2 px-3">
                           <div class="d-flex align-items-center gap-2">
-                            {% if lesson.lesson_type == 'video' %}
-                              <i class="fas fa-play-circle text-primary"></i>
-                            {% elif lesson.lesson_type == 'article' %}
-                              <i class="fas fa-file-alt text-secondary"></i>
+                            {% if lesson.lesson_type == 'exercise' %}
+                              <i class="fas fa-laptop-code text-success"></i>
                             {% else %}
-                              <i class="fas fa-question-circle text-warning"></i>
+                              <i class="fas fa-book-open text-primary"></i>
                             {% endif %}
-                            <span>{{ lesson.title }}</span>
+                            <span class="fw-semibold">{{ lesson.title }}</span>
                             {% if lesson.is_preview %}
-                              <span class="badge bg-success-subtle text-success ms-1">Preview</span>
+                              <span class="badge bg-success-subtle text-success ms-1">Free Preview</span>
                             {% endif %}
                           </div>
                           <span class="text-muted">{{ lesson.duration_minutes }} mins</span>
@@ -111,9 +154,73 @@
           </div>
         </div>
 
+        <!-- Real-World Capstone Projects -->
+        {% if course.projects.all %}
+          <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h4 class="fw-bold mb-0 text-dark"><i class="fas fa-cubes text-primary me-2"></i> Real-World Capstone Projects</h4>
+              <span class="badge bg-success-subtle text-success fw-bold px-3 py-1 rounded-pill">Portfolio-Ready</span>
+            </div>
+            <p class="text-muted small mb-4">Build and showcase industry-standard projects to demonstrate your practical capability to hiring managers.</p>
+
+            <div class="row g-3">
+              {% for proj in course.projects.all %}
+                <div class="col-12">
+                  <div class="ts-project-card p-4">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-2">
+                      <h5 class="fw-bold text-dark mb-0">{{ proj.title }}</h5>
+                      <span class="badge {% if proj.difficulty == 'advanced' %}bg-danger{% elif proj.difficulty == 'intermediate' %}bg-warning text-dark{% else %}bg-success{% endif %} rounded-pill">
+                        {{ proj.get_difficulty_display }}
+                      </span>
+                    </div>
+                    <p class="text-secondary small mb-3">{{ proj.short_description }}</p>
+                    <div class="d-flex flex-wrap gap-1 mb-2">
+                      {% for tech in proj.tech_list %}
+                        <span class="tech-tag">{{ tech }}</span>
+                      {% endfor %}
+                    </div>
+                    <div class="text-muted small mt-2">
+                      <i class="fas fa-clock me-1"></i> Approx {{ proj.estimated_hours }} Hours
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Technical Interview Preparation Kit -->
+        {% if course.interview_questions.all %}
+          <div class="card border-0 shadow-sm rounded-4 p-4 mb-4 bg-white">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h4 class="fw-bold mb-0 text-dark"><i class="fas fa-user-check text-primary me-2"></i> Technical Interview Q&A Kit</h4>
+              <span class="badge bg-primary text-white fw-bold px-3 py-1 rounded-pill">Career Kit</span>
+            </div>
+            <p class="text-muted small mb-3">Most frequently asked interview questions with mentor-verified explanations.</p>
+
+            <div class="accordion shadow-none" id="interviewAccordion">
+              {% for iq in course.interview_questions.all %}
+                <div class="accordion-item border rounded-3 mb-2 overflow-hidden">
+                  <h2 class="accordion-header" id="headingIq{{ iq.id }}">
+                    <button class="accordion-button collapsed bg-light fw-bold text-dark py-2 px-3" type="button" data-bs-toggle="collapse" data-bs-target="#collapseIq{{ iq.id }}">
+                      <span class="badge bg-secondary-subtle text-secondary me-2">{{ iq.category_tag }}</span>
+                      {{ iq.question }}
+                    </button>
+                  </h2>
+                  <div id="collapseIq{{ iq.id }}" class="accordion-collapse collapse" data-bs-parent="#interviewAccordion">
+                    <div class="accordion-body bg-white text-secondary small p-3" style="line-height: 1.7;">
+                      {{ iq.answer|render_notes }}
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
         <!-- Reviews & Rating Section -->
         <div class="card border-0 shadow-sm rounded-4 p-4 bg-white">
-          <h4 class="fw-bold mb-3">Student Reviews ({{ course.reviews.count }})</h4>
+          <h4 class="fw-bold mb-3 text-dark"><i class="fas fa-star text-warning me-2"></i> Student Reviews & Feedback</h4>
           
           {% if is_enrolled %}
             <div class="p-3 bg-light rounded-3 mb-4 border">
@@ -156,6 +263,7 @@
             {% endfor %}
           </div>
         </div>
+
       </div>
 
       <!-- Sticky Enrollment Sidebar -->
@@ -177,14 +285,14 @@
             {% if is_enrolled %}
               <div class="alert alert-success d-flex align-items-center gap-2 small py-2 mb-3">
                 <i class="fas fa-check-circle fs-5"></i>
-                <div>You are enrolled in this course!</div>
+                <div>You are actively enrolled in this course!</div>
               </div>
-              <a href="{% url 'enrollments:classroom' course_slug=course.slug %}" class="btn btn-ts-primary w-100 py-3 fw-bold mb-3">
+              <a href="{% url 'enrollments:classroom' course_slug=course.slug %}" class="btn btn-ts-primary w-100 py-3 fw-bold mb-3 shadow">
                 <i class="fas fa-play-circle me-2"></i> Continue Learning
               </a>
             {% else %}
               <a href="{% url 'enrollments:enroll' slug=course.slug %}" class="btn btn-ts-primary w-100 py-3 fw-bold mb-3 shadow">
-                <i class="fas fa-rocket me-2"></i> Enroll Now (Free)
+                <i class="fas fa-rocket me-2"></i> Enroll Now Free
               </a>
             {% endif %}
 
@@ -194,16 +302,20 @@
                 <span class="fw-bold text-dark">{{ course.duration_hours }} Hours</span>
               </div>
               <div class="d-flex justify-content-between">
-                <span><i class="fas fa-book text-primary me-2"></i> Lessons</span>
+                <span><i class="fas fa-book text-primary me-2"></i> Lessons & Notes</span>
                 <span class="fw-bold text-dark">{{ course.total_lessons_count }} Lessons</span>
               </div>
               <div class="d-flex justify-content-between">
-                <span><i class="fas fa-tasks text-primary me-2"></i> Assessment</span>
+                <span><i class="fas fa-cubes text-primary me-2"></i> Projects</span>
+                <span class="fw-bold text-dark">{{ course.projects.count }} Capstone(s)</span>
+              </div>
+              <div class="d-flex justify-content-between">
+                <span><i class="fas fa-tasks text-primary me-2"></i> Final Assessment</span>
                 <span class="fw-bold text-dark">Included</span>
               </div>
               <div class="d-flex justify-content-between">
-                <span><i class="fas fa-certificate text-warning me-2"></i> Certificate</span>
-                <span class="fw-bold text-success">Verified PDF</span>
+                <span><i class="fas fa-certificate text-warning me-2"></i> Verified Certificate</span>
+                <span class="fw-bold text-success">Included</span>
               </div>
               <div class="d-flex justify-content-between">
                 <span><i class="fas fa-infinity text-primary me-2"></i> Access</span>
@@ -212,12 +324,49 @@
             </div>
 
             <div class="mt-4 p-3 bg-light rounded-3 text-center border">
-              <small class="text-muted d-block mb-1">Online Verifiable Certificate</small>
+              <small class="text-muted d-block mb-1">Verifiable Academic Credential</small>
               <strong class="text-dark small"><i class="fas fa-shield-alt text-success me-1"></i> Issued by TECHSPIRE Learning</strong>
             </div>
           </div>
         </div>
+
+        <!-- Premium Notes Companion Cross-Sell -->
+        {% with notes_prod=course.category.notes_products.first %}
+        {% if notes_prod %}
+          <div class="card border-0 shadow-sm rounded-4 mt-4 overflow-hidden bg-white border-top border-4 border-warning">
+            <div class="p-4">
+              <div class="d-flex align-items-center justify-content-between mb-2">
+                <span class="badge bg-warning text-dark fw-bold px-2 py-1 small">
+                  <i class="fas fa-bolt me-1"></i> Digital Study Material
+                </span>
+                <span class="badge bg-danger-subtle text-danger fw-bold small">PDF + Online</span>
+              </div>
+              <h5 class="fw-bold text-dark mb-1">{{ notes_prod.title }}</h5>
+              <p class="text-muted small mb-3">Get complete mentor handwritten-style notes, cheat sheets, code architectures & printable PDF.</p>
+              
+              <div class="d-flex align-items-baseline gap-2 mb-3">
+                <span class="fs-4 fw-extrabold text-primary">₹{{ notes_prod.price }}</span>
+                {% if notes_prod.discount_percent > 0 %}
+                  <span class="text-decoration-line-through text-muted small">₹{{ notes_prod.price }}</span>
+                  <span class="badge bg-success-subtle text-success small">{{ notes_prod.discount_percent }}% OFF</span>
+                {% endif %}
+              </div>
+
+              <div class="d-grid gap-2">
+                <a href="{% url 'notes:product_detail' slug=notes_prod.slug %}" class="btn btn-outline-primary btn-sm fw-bold">
+                  <i class="fas fa-eye me-1"></i> Preview Notes
+                </a>
+                <a href="{% url 'notes:checkout' slug=notes_prod.slug %}" class="btn btn-warning btn-sm fw-bold text-dark shadow-sm">
+                  <i class="fas fa-shopping-cart me-1"></i> Get Notes Now
+                </a>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+        {% endwith %}
+
       </div>
+
     </div>
   </div>
 </div>

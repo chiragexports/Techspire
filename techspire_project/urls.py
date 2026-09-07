@@ -17,6 +17,7 @@ urlpatterns = [
     path('', include('apps.core.urls', namespace='core')),
     path('auth/', include('apps.accounts.urls', namespace='accounts')),
     path('courses/', include('apps.courses.urls', namespace='courses')),
+    path('notes/', include('apps.notes.urls', namespace='notes')),
     path('learn/', include('apps.enrollments.urls', namespace='enrollments')),
     path('quiz/', include('apps.quizzes.urls', namespace='quizzes')),
     path('certificates/', include('apps.certificates.urls', namespace='certificates')),

@@ -1,36 +1,50 @@
 from django.shortcuts import render, redirect
-from django.views.generic import TemplateView, FormView
+from django.db.models import Count, Q
 from django.contrib import messages
-from django.db.models import Count
-from apps.courses.models import Course, CourseCategory
 from apps.accounts.models import User
-from .models import FAQ, Testimonial, ContactInquiry, SiteSetting
-from .forms import ContactInquiryForm, NewsletterForm
+from apps.courses.models import Course, CourseCategory, Lesson
+from apps.core.models import FAQ, Testimonial, ContactInquiry, SiteSetting
+from apps.core.forms import ContactInquiryForm, NewsletterForm
+from apps.enrollments.models import Enrollment, LessonProgress
+
 
 def home_view(request):
     try:
-        featured_courses = Course.objects.filter(is_published=True).select_related('category', 'instructor')[:6]
-        categories = CourseCategory.objects.annotate(courses_count=Count('courses')).order_by('order', 'name')
-        testimonials = Testimonial.objects.filter(is_featured=True)[:6]
+        featured_courses = Course.objects.filter(is_published=True).select_related('category', 'instructor').order_by('-is_featured', 'category__order', '-created_at')[:6]
+        categories = CourseCategory.objects.annotate(courses_count=Count('courses', filter=Q(courses__is_published=True))).order_by('order', 'name')
         faqs = FAQ.objects.filter(is_active=True)[:6]
-        total_students = User.objects.filter(role='student').count() + 1250
+        total_students = User.objects.filter(role='student').count()
         total_courses = Course.objects.filter(is_published=True).count()
+        total_lessons = Lesson.objects.count()
+
+        # Map user's active enrollments for logged-in users
+        user_enrollments_map = {}
+        if request.user.is_authenticated:
+            for e in Enrollment.objects.filter(user=request.user):
+                user_enrollments_map[e.course_id] = {
+                    'progress': e.progress_percentage,
+                    'status': e.status,
+                    'completed_lessons': e.completed_lessons_count,
+                    'total_lessons': e.total_lessons,
+                }
     except Exception:
         featured_courses = []
         categories = []
-        testimonials = []
         faqs = []
-        total_students = 1250
+        total_students = 0
         total_courses = 0
+        total_lessons = 0
+        user_enrollments_map = {}
     
     context = {
         'featured_courses': featured_courses,
         'categories': categories,
-        'testimonials': testimonials,
         'faqs': faqs,
         'total_students': total_students,
         'total_courses': total_courses,
-        'title': 'TECHSPIRE Learning - Master Tech Skills Online',
+        'total_lessons': total_lessons,
+        'user_enrollments_map': user_enrollments_map,
+        'title': 'Techspire - Professional Self-Paced Learning Academy',
     }
     return render(request, 'core/home.html', context)
 

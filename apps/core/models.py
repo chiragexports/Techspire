@@ -99,3 +99,67 @@ class NewsletterSubscriber(models.Model):
 
     def __str__(self):
         return self.email
+
+
+class ActivityLog(models.Model):
+    ACTION_CHOICES = (
+        ('login', 'User Login'),
+        ('logout', 'User Logout'),
+        ('signup', 'Account Created'),
+        ('course_enroll', 'Course Enrolled'),
+        ('lesson_view', 'Lesson Opened'),
+        ('lesson_complete', 'Lesson Completed'),
+        ('quiz_start', 'Quiz Started'),
+        ('quiz_submit', 'Quiz Submitted'),
+        ('course_complete', 'Course Completed'),
+        ('certificate_issued', 'Certificate Generated'),
+    )
+
+    user = models.ForeignKey(
+        'accounts.User',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='activity_logs'
+    )
+    action_type = models.CharField(max_length=30, choices=ACTION_CHOICES, db_index=True)
+    course = models.ForeignKey('courses.Course', on_delete=models.SET_NULL, null=True, blank=True, related_name='activity_logs')
+    lesson = models.ForeignKey('courses.Lesson', on_delete=models.SET_NULL, null=True, blank=True, related_name='activity_logs')
+    quiz = models.ForeignKey('quizzes.Quiz', on_delete=models.SET_NULL, null=True, blank=True, related_name='activity_logs')
+    description = models.CharField(max_length=300)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+
+    class Meta:
+        verbose_name = "Activity Log"
+        verbose_name_plural = "Activity Logs"
+        ordering = ['-created_at']
+
+    def __str__(self):
+        user_display = self.user.email if self.user else "Anonymous"
+        return f"[{self.created_at.strftime('%Y-%m-%d %H:%M')}] {user_display} - {self.get_action_type_display()}: {self.description}"
+
+    @classmethod
+    def log(cls, user=None, action_type='login', description='', course=None, lesson=None, quiz=None, request=None):
+        ip = None
+        if request:
+            x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+            if x_forwarded_for:
+                ip = x_forwarded_for.split(',')[0].strip()
+            else:
+                ip = request.META.get('REMOTE_ADDR')
+            if not user and request.user.is_authenticated:
+                user = request.user
+        try:
+            return cls.objects.create(
+                user=user if (user and user.is_authenticated) else None,
+                action_type=action_type,
+                course=course,
+                lesson=lesson,
+                quiz=quiz,
+                description=description,
+                ip_address=ip
+            )
+        except Exception:
+            return None
+

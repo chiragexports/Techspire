@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - TECHSPIRE Admin{% endblock %}
+
+{% block content %}
+<div class="py-4 bg-light min-vh-75">
+  <div class="container" style="max-width: 900px;">
+
+    <!-- Breadcrumb & Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb mb-1 small">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:admin_overview' %}">Admin Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:admin_content_courses' %}">Content Manager</a></li>
+            <li class="breadcrumb-item active">Course Editor</li>
+          </ol>
+        </nav>
+        <h2 class="h3 fw-bold text-dark mb-0"><i class="fas fa-edit text-primary me-2"></i>{{ title }}</h2>
+      </div>
+
+      <a href="{% url 'dashboard:admin_content_courses' %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+        <i class="fas fa-arrow-left me-1"></i> Back
+      </a>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 p-4 p-md-5 bg-white">
+      <form method="POST">
+        {% csrf_token %}
+
+        <div class="mb-3">
+          <label class="form-label fw-bold small text-dark">Course Title *</label>
+          <input type="text" name="title" value="{{ course.title|default:'' }}" class="form-control" required placeholder="e.g. Python Essentials 1: Fundamentals of Python Programming">
+        </div>
+
+        <div class="row g-3 mb-3">
+          <div class="col-md-6">
+            <label class="form-label fw-bold small text-dark">Category *</label>
+            <select name="category" class="form-select" required>
+              {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if course and course.category_id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label fw-bold small text-dark">Difficulty Level</label>
+            <select name="level" class="form-select">
+              <option value="beginner" {% if course and course.level == 'beginner' %}selected{% endif %}>Beginner</option>
+              <option value="intermediate" {% if course and course.level == 'intermediate' %}selected{% endif %}>Intermediate</option>
+              <option value="advanced" {% if course and course.level == 'advanced' %}selected{% endif %}>Advanced</option>
+            </select>
+          </div>
+
+          <div class="col-md-3">
+            <label class="form-label fw-bold small text-dark">Duration (Hours)</label>
+            <input type="number" step="0.5" name="duration_hours" value="{{ course.duration_hours|default:'12.0' }}" class="form-control">
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold small text-dark">Short Summary (for Cards) *</label>
+          <textarea name="short_description" rows="2" class="form-control" required placeholder="1-2 sentences summarizing learning goals">{{ course.short_description|default:'' }}</textarea>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold small text-dark">Detailed Overview & Syllabus Description *</label>
+          <textarea name="description" rows="5" class="form-control" required placeholder="Full course syllabus overview">{{ course.description|default:'' }}</textarea>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold small text-dark">What You Will Learn (one key outcome per line)</label>
+          <textarea name="what_you_will_learn" rows="4" class="form-control" placeholder="Understand Python bytecode\nBuild object-oriented apps">{{ course.what_you_will_learn|default:'' }}</textarea>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label fw-bold small text-dark">Prerequisites (one per line)</label>
+          <textarea name="requirements" rows="3" class="form-control" placeholder="Basic computer literacy\nText editor installed">{{ course.requirements|default:'' }}</textarea>
+        </div>
+
+        <div class="d-flex gap-4 mb-4 p-3 bg-light rounded-3 border">
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" name="is_published" id="is_published" {% if not course or course.is_published %}checked{% endif %}>
+            <label class="form-check-label fw-bold small" for="is_published">Published (Visible to Students)</label>
+          </div>
+
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" name="is_featured" id="is_featured" {% if course and course.is_featured %}checked{% endif %}>
+            <label class="form-check-label fw-bold small" for="is_featured">Featured on Homepage</label>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+          <a href="{% url 'dashboard:admin_content_courses' %}" class="btn btn-outline-secondary px-4 rounded-pill">Cancel</a>
+          <button type="submit" class="btn btn-primary fw-bold px-5 rounded-pill">
+            <i class="fas fa-save me-1"></i> Save Course
+          </button>
+        </div>
+      </form>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

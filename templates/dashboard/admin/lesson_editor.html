@@ -1,0 +1,141 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ title }} - TECHSPIRE Admin{% endblock %}
+
+{% block content %}
+<div class="py-4 bg-light min-vh-75">
+  <div class="container-fluid px-lg-5">
+
+    <!-- Breadcrumb & Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb mb-1 small">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:admin_overview' %}">Admin Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:admin_content_courses' %}">Content Manager</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:admin_lesson_analytics' course_id=course.id %}">{{ course.title|truncatewords:3 }}</a></li>
+            <li class="breadcrumb-item active">Notes Editor</li>
+          </ol>
+        </nav>
+        <h2 class="h3 fw-bold text-dark mb-0"><i class="fas fa-file-code text-primary me-2"></i>{{ title }}</h2>
+      </div>
+
+      <a href="{% url 'dashboard:admin_lesson_analytics' course_id=course.id %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+        <i class="fas fa-arrow-left me-1"></i> Back to Lessons
+      </a>
+    </div>
+
+    <form method="POST">
+      {% csrf_token %}
+      <div class="row g-4">
+        
+        <!-- Left: Form Controls & Markdown Editor -->
+        <div class="col-lg-8">
+          <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+            
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label fw-bold small text-dark">Parent Module *</label>
+                <select name="module" class="form-select" required>
+                  {% for mod in modules %}
+                    <option value="{{ mod.id }}" {% if lesson and lesson.module_id == mod.id %}selected{% endif %}>
+                      Module {{ mod.order }}: {{ mod.title }}
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+
+              <div class="col-md-4">
+                <label class="form-label fw-bold small text-dark">Lesson Title *</label>
+                <input type="text" name="title" value="{{ lesson.title|default:'' }}" class="form-control" required placeholder="e.g. Variables & Memory References">
+              </div>
+
+              <div class="col-md-2">
+                <label class="form-label fw-bold small text-dark">Order #</label>
+                <input type="number" name="order" value="{{ lesson.order|default:'1' }}" class="form-control" required>
+              </div>
+            </div>
+
+            <!-- Notes Markdown Area -->
+            <div class="mb-3">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <label class="form-label fw-bold small text-dark mb-0">Study Notes (Markdown with Code Blocks & Callouts) *</label>
+                <span class="badge bg-light text-muted border">Supports ```python, > [!NOTE], Tables</span>
+              </div>
+              <textarea name="notes_markdown" id="notesTextarea" rows="18" class="form-control font-monospace" style="font-size: 0.9rem;" required placeholder="# Lesson Title&#10;&#10;Detailed written notes, syntax explanations, and examples...&#10;&#10;```python&#10;# Code example&#10;print('Hello')&#10;```">{{ lesson.notes_markdown|default:'' }}</textarea>
+            </div>
+
+            <!-- Key Takeaways & Interview Tips -->
+            <div class="row g-3 mb-3">
+              <div class="col-md-6">
+                <label class="form-label fw-bold small text-dark">Key Takeaways (one per line)</label>
+                <textarea name="key_takeaways" rows="4" class="form-control small" placeholder="Core takeaway 1\nCore takeaway 2">{{ lesson.key_takeaways|default:'' }}</textarea>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-bold small text-dark">Interview Question / Tip</label>
+                <textarea name="interview_tips" rows="4" class="form-control small" placeholder="Q: Explain memory referencing in Python\nA: Python variables are named pointers...">{{ lesson.interview_tips|default:'' }}</textarea>
+              </div>
+            </div>
+
+            <!-- Hands-on Lab & Solution -->
+            <div class="row g-3 mb-4">
+              <div class="col-md-6">
+                <label class="form-label fw-bold small text-dark">Hands-on Practice Challenge</label>
+                <textarea name="practice_exercise" rows="4" class="form-control small" placeholder="Write a program to calculate factorial...">{{ lesson.practice_exercise|default:'' }}</textarea>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label fw-bold small text-dark">Self-Check Solution Walkthrough</label>
+                <textarea name="exercise_solution" rows="4" class="form-control small" placeholder="```python\ndef fact(n): ...\n```">{{ lesson.exercise_solution|default:'' }}</textarea>
+              </div>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+              <a href="{% url 'dashboard:admin_lesson_analytics' course_id=course.id %}" class="btn btn-outline-secondary px-4 rounded-pill">Cancel</a>
+              <button type="submit" class="btn btn-primary fw-bold px-5 rounded-pill">
+                <i class="fas fa-save me-1"></i> Save Lesson Notes
+              </button>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Right: Settings & Markdown Syntax Helper -->
+        <div class="col-lg-4">
+          <div class="card border-0 shadow-sm rounded-4 p-4 bg-white mb-4">
+            <h6 class="fw-bold text-dark mb-3"><i class="fas fa-cog text-primary me-2"></i>Lesson Settings</h6>
+            
+            <div class="mb-3">
+              <label class="form-label small fw-semibold">Estimated Reading Time (Minutes)</label>
+              <input type="number" name="duration_minutes" value="{{ lesson.duration_minutes|default:'15' }}" class="form-control">
+            </div>
+
+            <div class="form-check form-switch mb-3">
+              <input class="form-check-input" type="checkbox" name="is_preview" id="is_preview" {% if lesson and lesson.is_preview %}checked{% endif %}>
+              <label class="form-check-label small fw-semibold" for="is_preview">Free Sample Preview Lesson</label>
+            </div>
+          </div>
+
+          <!-- Syntax Reference Box -->
+          <div class="card border-0 shadow-sm rounded-4 p-4 bg-light border">
+            <h6 class="fw-bold text-dark mb-2"><i class="fas fa-magic text-warning me-2"></i>Markdown Cheat Sheet</h6>
+            <div class="small text-muted d-flex flex-column gap-2" style="font-size: 0.82rem;">
+              <div><code># Heading 1</code> (Lesson Title)</div>
+              <div><code>## Heading 2</code> (Section with Bookmark)</div>
+              <div><code>### Heading 3</code> (Sub-topic)</div>
+              <div><code>```python ... ```</code> (Code Block with Copy)</div>
+              <div><code>> [!NOTE]</code> (Key Note Box)</div>
+              <div><code>> [!TIP]</code> (Pro Tip Box)</div>
+              <div><code>> [!WARNING]</code> (Warning / Common Pitfall)</div>
+              <div><code>> [!INTERVIEW]</code> (Interview Prep Callout)</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </form>
+
+  </div>
+</div>
+{% endblock %}

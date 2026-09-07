@@ -50,6 +50,10 @@ class Course(models.Model):
     price = models.DecimalField(max_digits=8, decimal_places=2, default=0.00, help_text="Course fee in INR (0 if Free)")
     what_you_will_learn = models.TextField(help_text="Enter key outcomes separated by newlines", blank=True)
     requirements = models.TextField(help_text="Prerequisites separated by newlines", blank=True)
+    roadmap_highlights = models.TextField(help_text="Course learning journey milestones (newline separated)", blank=True)
+    career_opportunities = models.TextField(help_text="Target job roles / opportunities (newline separated)", blank=True)
+    has_certificate = models.BooleanField(default=True)
+    badge_text = models.CharField(max_length=50, blank=True, default="Verified Certificate")
     is_published = models.BooleanField(default=True)
     is_featured = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -81,6 +85,18 @@ class Course(models.Model):
     def requirements_list(self):
         if self.requirements:
             return [r.strip() for r in self.requirements.split('\n') if r.strip()]
+        return []
+
+    @property
+    def roadmap_list(self):
+        if self.roadmap_highlights:
+            return [rm.strip() for rm in self.roadmap_highlights.split('\n') if rm.strip()]
+        return []
+
+    @property
+    def career_list(self):
+        if self.career_opportunities:
+            return [c.strip() for c in self.career_opportunities.split('\n') if c.strip()]
         return []
 
     @property
@@ -124,17 +140,25 @@ class Module(models.Model):
 class Lesson(models.Model):
     LESSON_TYPES = (
         ('video', 'Video Lesson'),
-        ('article', 'Reading & Code Tutorial'),
+        ('article', 'Reading & Notes Tutorial'),
+        ('exercise', 'Practical Hands-on Lab'),
         ('quiz', 'Module Quiz / Assessment'),
     )
     module = models.ForeignKey(Module, on_delete=models.CASCADE, related_name='lessons')
     title = models.CharField(max_length=200)
     slug = models.SlugField(max_length=220, blank=True)
-    lesson_type = models.CharField(max_length=20, choices=LESSON_TYPES, default='video')
+    lesson_type = models.CharField(max_length=20, choices=LESSON_TYPES, default='article')
     order = models.PositiveIntegerField(default=1)
     duration_minutes = models.PositiveIntegerField(default=15, help_text="Approximate reading or viewing time")
     video_url = models.CharField(max_length=300, blank=True, help_text="Embeddable video link or YouTube embed URL")
-    content = models.TextField(blank=True, help_text="Detailed lesson guide, code snippets, explanations")
+    content = models.TextField(blank=True, help_text="Summary text or brief overview")
+    notes_markdown = models.TextField(blank=True, help_text="Comprehensive rich educational study notes with formatting, code, and callouts")
+    diagram_code = models.TextField(blank=True, help_text="Mermaid / SVG / ASCII visual diagram code")
+    key_takeaways = models.TextField(blank=True, help_text="Core takeaway bullet points (newline separated)")
+    interview_tips = models.TextField(blank=True, help_text="Technical interview tip or common interview questions on this topic")
+    practice_exercise = models.TextField(blank=True, help_text="Hands-on coding exercise / assignment challenge")
+    exercise_solution = models.TextField(blank=True, help_text="Self-check solution or explanation for the exercise")
+    resource_title = models.CharField(max_length=150, blank=True, default="Study Material & Notes", help_text="Name of downloadable asset")
     downloadable_file = models.FileField(upload_to='courses/resources/', blank=True, null=True, help_text="Code repository zip, cheat-sheet, or PDF")
     is_preview = models.BooleanField(default=False, help_text="Free sample preview lesson for visitors")
 
@@ -154,6 +178,88 @@ class Lesson(models.Model):
     @property
     def course(self):
         return self.module.course
+
+    @property
+    def takeaways_list(self):
+        if self.key_takeaways:
+            return [t.strip() for t in self.key_takeaways.split('\n') if t.strip()]
+        return []
+
+
+class CourseProject(models.Model):
+    DIFFICULTY_CHOICES = (
+        ('beginner', 'Beginner Level'),
+        ('intermediate', 'Intermediate Level'),
+        ('advanced', 'Advanced Capstone'),
+    )
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='projects')
+    title = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=220, blank=True)
+    short_description = models.CharField(max_length=300, help_text="Short teaser of the project goals")
+    description = models.TextField(help_text="Detailed project requirements, user stories, and architecture")
+    difficulty = models.CharField(max_length=20, choices=DIFFICULTY_CHOICES, default='intermediate')
+    estimated_hours = models.DecimalField(max_digits=4, decimal_places=1, default=8.0)
+    technologies_used = models.CharField(max_length=250, default="Python, Django, PostgreSQL, HTML/CSS", help_text="Comma-separated tech stack")
+    github_starter_url = models.CharField(max_length=300, blank=True, help_text="GitHub starter template or repository link")
+    submission_instructions = models.TextField(blank=True, help_text="Deliverables checklist and evaluation criteria")
+    order = models.PositiveIntegerField(default=1)
+    is_published = models.BooleanField(default=True)
+
+    class Meta:
+        verbose_name = "Course Project"
+        verbose_name_plural = "Course Projects"
+        ordering = ['order', 'id']
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(f"{self.title}-{self.order}")
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.course.title} - Project: {self.title}"
+
+    @property
+    def tech_list(self):
+        return [t.strip() for t in self.technologies_used.split(',') if t.strip()]
+
+
+class InterviewQuestion(models.Model):
+    DIFFICULTY_CHOICES = (
+        ('basic', 'Fundamental / Fresher'),
+        ('intermediate', 'Intermediate / 1-3 Yrs'),
+        ('advanced', 'Advanced / Senior'),
+    )
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='interview_questions')
+    question = models.CharField(max_length=300)
+    answer = models.TextField(help_text="Clear, comprehensive model answer with examples")
+    category_tag = models.CharField(max_length=100, default="Core Concepts", help_text="e.g. ORM, Architecture, DAX, Algorithms")
+    difficulty = models.CharField(max_length=20, choices=DIFFICULTY_CHOICES, default='intermediate')
+    order = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        verbose_name = "Interview Question"
+        verbose_name_plural = "Interview Questions"
+        ordering = ['order', 'id']
+
+    def __str__(self):
+        return f"{self.course.title} - Q{self.order}: {self.question[:50]}..."
+
+
+class CourseAssignment(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='assignments')
+    module = models.ForeignKey(Module, on_delete=models.SET_NULL, null=True, blank=True, related_name='assignments')
+    title = models.CharField(max_length=200)
+    instructions = models.TextField(help_text="Assignment prompt, tasks to perform, expected output")
+    max_score = models.PositiveIntegerField(default=100)
+    order = models.PositiveIntegerField(default=1)
+
+    class Meta:
+        verbose_name = "Course Assignment"
+        verbose_name_plural = "Course Assignments"
+        ordering = ['order', 'id']
+
+    def __str__(self):
+        return f"{self.course.title} - Assignment: {self.title}"
 
 
 class CourseReview(models.Model):

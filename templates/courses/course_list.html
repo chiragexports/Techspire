@@ -8,7 +8,23 @@
   <div class="container py-3">
     <span class="badge bg-warning text-dark fw-bold px-3 py-2 rounded-pill mb-2">COURSE CATALOG</span>
     <h1 class="display-6 fw-bold">Explore Our Practical Tech Courses</h1>
-    <p class="text-white-50 mb-0">Learn from structured modules, take assessments, and earn verifiable certificates.</p>
+    <p class="text-white-50 mb-0">Learn from structured modules, study comprehensive notes, take assessments, and earn verifiable certificates.</p>
+  </div>
+</div>
+
+<!-- Quick Category Navigation Bar -->
+<div class="bg-white border-bottom py-3">
+  <div class="container">
+    <div class="d-flex align-items-center gap-2 overflow-auto pb-1" style="white-space: nowrap;">
+      <a href="{% url 'courses:course_list' %}" class="btn btn-sm rounded-pill px-3 fw-bold {% if not selected_category %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+        <i class="fas fa-th-large me-1"></i> All Paths
+      </a>
+      {% for cat in categories %}
+        <a href="?category={{ cat.slug }}" class="btn btn-sm rounded-pill px-3 fw-semibold {% if selected_category.slug == cat.slug %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+          <i class="{{ cat.icon_class }} me-1"></i> {{ cat.name }}
+        </a>
+      {% endfor %}
+    </div>
   </div>
 </div>
 
@@ -18,14 +34,14 @@
       <!-- Sidebar Filters -->
       <div class="col-lg-3">
         <div class="card border-0 shadow-sm rounded-4 p-4 bg-white sticky-top" style="top: 90px;">
-          <h5 class="fw-bold mb-3"><i class="fas fa-filter text-primary me-2"></i> Filters</h5>
+          <h5 class="fw-bold mb-3"><i class="fas fa-filter text-primary me-2"></i> Refine Search</h5>
           
           <form method="GET" action="{% url 'courses:course_list' %}">
             <!-- Search Keyword -->
             <div class="mb-4">
-              <label class="form-label small fw-bold text-muted">Search Courses</label>
+              <label class="form-label small fw-bold text-muted">Keywords</label>
               <div class="input-group">
-                <input type="text" name="q" value="{{ current_q }}" class="form-control form-control-sm" placeholder="Search keywords...">
+                <input type="text" name="q" value="{{ current_q }}" class="form-control form-control-sm" placeholder="e.g. Python, Django, DAX...">
                 <button class="btn btn-outline-primary btn-sm" type="submit"><i class="fas fa-search"></i></button>
               </div>
             </div>
@@ -35,11 +51,11 @@
               <label class="form-label small fw-bold text-muted">Category</label>
               <div class="d-flex flex-column gap-1">
                 <a href="{% url 'courses:course_list' %}" class="small text-decoration-none py-1 {% if not selected_category %}fw-bold text-primary{% else %}text-muted{% endif %}">
-                  All Categories
+                  <i class="fas fa-check-circle me-1 {% if not selected_category %}text-primary{% else %}text-muted{% endif %}"></i> All Categories
                 </a>
                 {% for cat in categories %}
                   <a href="?category={{ cat.slug }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_level %}&level={{ current_level }}{% endif %}" class="small text-decoration-none py-1 {% if selected_category.slug == cat.slug %}fw-bold text-primary{% else %}text-muted{% endif %}">
-                    {{ cat.name }} ({{ cat.course_count }})
+                    <i class="{{ cat.icon_class }} me-1 text-primary"></i> {{ cat.name }} ({{ cat.course_count }})
                   </a>
                 {% endfor %}
               </div>
@@ -58,10 +74,10 @@
 
             <!-- Price Filter -->
             <div class="mb-4">
-              <label class="form-label small fw-bold text-muted">Course Fee</label>
+              <label class="form-label small fw-bold text-muted">Pricing</label>
               <select name="price" class="form-select form-select-sm" onchange="this.form.submit()">
                 <option value="" {% if not current_price %}selected{% endif %}>All Courses</option>
-                <option value="free" {% if current_price == 'free' %}selected{% endif %}>Free Courses</option>
+                <option value="free" {% if current_price == 'free' %}selected{% endif %}>Free Access</option>
               </select>
             </div>
 
@@ -79,7 +95,7 @@
             Showing <span class="text-primary">{{ total_count }}</span> course{{ total_count|pluralize }}
           </h5>
           <div class="d-flex align-items-center gap-2">
-            <span class="small text-muted d-none d-sm-inline">Sort By:</span>
+            <span class="small text-muted d-none d-sm-inline">Sort:</span>
             <form method="GET">
               {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category.slug }}">{% endif %}
               {% if current_q %}<input type="hidden" name="q" value="{{ current_q }}">{% endif %}
@@ -103,7 +119,7 @@
                 </div>
                 <div class="p-4 d-flex flex-column flex-grow-1">
                   <div class="d-flex justify-content-between align-items-center mb-2">
-                    <span class="text-primary small fw-bold">{{ course.category.name }}</span>
+                    <span class="text-primary small fw-bold"><i class="{{ course.category.icon_class }} me-1"></i> {{ course.category.name }}</span>
                     <span class="text-warning small fw-semibold"><i class="fas fa-star"></i> {{ course.average_rating }}</span>
                   </div>
                   <h5 class="fw-bold text-dark mb-2">
@@ -125,7 +141,7 @@
                       <i class="fas fa-user-tie text-secondary me-1"></i> {{ course.instructor_name }}
                     </div>
                     <a href="{{ course.get_absolute_url }}" class="btn btn-sm btn-primary px-3 rounded-pill fw-semibold">
-                      Course Details
+                      View Syllabus & Notes
                     </a>
                   </div>
                 </div>

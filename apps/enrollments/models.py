@@ -11,7 +11,15 @@ class Enrollment(models.Model):
     )
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='enrollments')
     course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='enrollments')
+    last_accessed_lesson = models.ForeignKey(
+        Lesson,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='last_accessed_enrollments'
+    )
     enrolled_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
     completed_at = models.DateTimeField(blank=True, null=True)
 
@@ -61,10 +69,13 @@ class Enrollment(models.Model):
         return False
 
     def get_last_accessed_or_first_lesson(self):
-        # Find first incomplete lesson
+        # Return last accessed lesson if set, otherwise find next incomplete lesson
         all_lessons = Lesson.objects.filter(module__course=self.course).order_by('module__order', 'order')
-        completed_ids = self.lesson_progresses.filter(is_completed=True).values_list('lesson_id', flat=True)
+        completed_ids = set(self.lesson_progresses.filter(is_completed=True).values_list('lesson_id', flat=True))
         
+        if self.last_accessed_lesson and self.last_accessed_lesson.id not in completed_ids:
+            return self.last_accessed_lesson
+            
         for lesson in all_lessons:
             if lesson.id not in completed_ids:
                 return lesson

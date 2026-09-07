@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block title %}My Orders & Purchase Invoices — TECHSPIRE{% endblock %}
+
+{% block content %}
+<div class="py-5 bg-light min-vh-75">
+  <div class="container" style="max-width: 900px;">
+    
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <span class="badge bg-secondary text-white fw-bold px-3 py-1 rounded-pill mb-1">BILLING & INVOICES</span>
+        <h2 class="fw-extrabold text-dark mb-0">My Order History</h2>
+      </div>
+      <a href="{% url 'notes:my_notes' %}" class="btn btn-outline-primary btn-sm rounded-pill px-3">
+        <i class="fas fa-book-reader me-1"></i> Go to My Notes
+      </a>
+    </div>
+
+    <div class="card border-0 shadow-sm rounded-4 bg-white overflow-hidden">
+      <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 small">
+          <thead class="table-light" style="background-color: #F8FAFC;">
+            <tr>
+              <th class="py-3 px-3">Order ID</th>
+              <th class="py-3 px-3">Item / Pack</th>
+              <th class="py-3 px-3">Date</th>
+              <th class="py-3 px-3">Amount</th>
+              <th class="py-3 px-3">Status</th>
+              <th class="py-3 px-3 text-end">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for order in orders %}
+              <tr>
+                <td class="font-monospace fw-bold text-dark py-3 px-3">{{ order.order_id }}</td>
+                <td class="fw-semibold py-3 px-3">
+                  {% if order.product %}
+                    <a href="{{ order.product.get_absolute_url }}" class="text-dark text-decoration-none hover-primary">
+                      {{ order.product.title }}
+                    </a>
+                  {% elif order.bundle %}
+                    <a href="{{ order.bundle.get_absolute_url }}" class="text-dark text-decoration-none hover-primary">
+                      {{ order.bundle.title }}
+                    </a>
+                  {% else %}
+                    <span>Item</span>
+                  {% endif %}
+                </td>
+                <td class="text-muted py-3 px-3">{{ order.created_at|date:"d M Y" }}</td>
+                <td class="fw-bold text-dark py-3 px-3">₹{{ order.amount }}</td>
+                <td class="py-3 px-3">
+                  {% if order.status == 'paid' %}
+                    <span class="badge bg-success">PAID</span>
+                  {% elif order.status == 'pending' %}
+                    <span class="badge bg-warning text-dark">PENDING</span>
+                  {% elif order.status == 'refunded' %}
+                    <span class="badge bg-info text-dark">REFUNDED</span>
+                  {% else %}
+                    <span class="badge bg-danger">{{ order.status|upper }}</span>
+                  {% endif %}
+                </td>
+                <td class="py-3 px-3 text-end">
+                  {% if order.status == 'paid' and order.product %}
+                    <a href="{% url 'notes:reader' product_slug=order.product.slug %}" class="btn btn-sm btn-primary py-0 px-2 rounded-pill">
+                      Read
+                    </a>
+                  {% elif order.status == 'paid' and order.bundle %}
+                    <a href="{% url 'notes:my_notes' %}" class="btn btn-sm btn-primary py-0 px-2 rounded-pill">
+                      View Notes
+                    </a>
+                  {% elif order.status == 'pending' and order.product %}
+                    <a href="{% url 'notes:checkout' slug=order.product.slug %}" class="btn btn-sm btn-warning py-0 px-2 rounded-pill text-dark fw-bold">
+                      Pay Now
+                    </a>
+                  {% endif %}
+                </td>
+              </tr>
+            {% empty %}
+              <tr>
+                <td colspan="6" class="text-center py-5 text-muted">
+                  <i class="fas fa-receipt fs-2 mb-2 d-block text-muted"></i>
+                  No orders or transactions recorded yet.
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

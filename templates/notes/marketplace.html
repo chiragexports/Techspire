@@ -1,0 +1,268 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Premium Technical Notes & Study Material Marketplace — TECHSPIRE{% endblock %}
+
+{% block content %}
+<!-- Marketplace Hero Banner -->
+<div class="bg-dark text-white py-5" style="background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 50%, #1E40AF 100%);">
+  <div class="container py-4">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-8">
+        <span class="badge bg-warning text-dark fw-bold px-3 py-1 rounded-pill mb-2">
+          <i class="fas fa-book-open me-1"></i> HIGH-YIELD STUDY MATERIAL & E-BOOKS
+        </span>
+        <h1 class="display-5 fw-extrabold mb-3">Premium Technical Notes Marketplace</h1>
+        <p class="lead text-white-50 mb-4" style="max-width: 680px;">
+          Fast-track your learning and interview prep with textbook-grade structured study notes, annotated code walkthroughs, visual diagrams, cheat sheets, and downloadable PDFs.
+        </p>
+        <div class="d-flex flex-wrap align-items-center gap-3 text-white-50 small">
+          <div><i class="fas fa-check-circle text-success me-1"></i> Verified Content</div>
+          <div><i class="fas fa-check-circle text-success me-1"></i> Downloadable Watermarked PDF</div>
+          <div><i class="fas fa-check-circle text-success me-1"></i> Lifetime Online Reader Access</div>
+          <div><i class="fas fa-check-circle text-success me-1"></i> Free Sample Chapters</div>
+        </div>
+      </div>
+      <div class="col-lg-4 text-center text-lg-end">
+        <div class="p-3 bg-white bg-opacity-10 rounded-4 border border-white border-opacity-10 backdrop-blur d-inline-block text-start">
+          <div class="small text-warning fw-bold mb-1"><i class="fas fa-sparkles me-1"></i> POPULAR PACKS</div>
+          <div class="fw-bold text-white fs-5">Career Notes Bundles</div>
+          <div class="text-white-50 small mb-2">Save up to 60% with all-in-one multi-topic packs</div>
+          <a href="#bundlesSection" class="btn btn-warning btn-sm fw-bold text-dark rounded-pill px-3">
+            View Bundles <i class="fas fa-arrow-down ms-1"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Horizontal Category Filter Bar -->
+<div class="bg-white border-bottom py-3 sticky-top" style="top: 60px; z-index: 1020;">
+  <div class="container">
+    <div class="d-flex align-items-center gap-2 overflow-auto pb-1" style="white-space: nowrap;">
+      <a href="{% url 'notes:marketplace' %}" class="btn btn-sm rounded-pill px-3 fw-bold {% if not selected_category %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+        <i class="fas fa-th-large me-1"></i> All Notes
+      </a>
+      {% for cat in categories %}
+        <a href="?category={{ cat.slug }}" class="btn btn-sm rounded-pill px-3 fw-semibold {% if selected_category.slug == cat.slug %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+          <i class="{{ cat.icon_class }} me-1"></i> {{ cat.name }}
+        </a>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="py-5 bg-light">
+  <div class="container">
+    <div class="row g-4">
+      
+      <!-- Filter Sidebar -->
+      <div class="col-lg-3">
+        <div class="card border-0 shadow-sm rounded-4 p-4 bg-white sticky-top" style="top: 130px;">
+          <h5 class="fw-bold mb-3 text-dark"><i class="fas fa-filter text-primary me-2"></i> Filter Notes</h5>
+          
+          <form method="GET" action="{% url 'notes:marketplace' %}">
+            <!-- Search -->
+            <div class="mb-4">
+              <label class="form-label small fw-bold text-muted">Search Topics / Keywords</label>
+              <div class="input-group">
+                <input type="text" name="q" value="{{ current_q }}" class="form-control form-control-sm" placeholder="e.g. Python, DAX, ORM, SEO...">
+                <button class="btn btn-primary btn-sm" type="submit"><i class="fas fa-search"></i></button>
+              </div>
+            </div>
+
+            <!-- Category -->
+            <div class="mb-4">
+              <label class="form-label small fw-bold text-muted">Category</label>
+              <div class="d-flex flex-column gap-1">
+                <a href="{% url 'notes:marketplace' %}" class="small text-decoration-none py-1 {% if not selected_category %}fw-bold text-primary{% else %}text-muted{% endif %}">
+                  <i class="fas fa-check-circle me-1 {% if not selected_category %}text-primary{% else %}text-muted{% endif %}"></i> All Categories
+                </a>
+                {% for cat in categories %}
+                  <a href="?category={{ cat.slug }}{% if current_q %}&q={{ current_q }}{% endif %}{% if current_difficulty %}&difficulty={{ current_difficulty }}{% endif %}" class="small text-decoration-none py-1 {% if selected_category.slug == cat.slug %}fw-bold text-primary{% else %}text-muted{% endif %}">
+                    <i class="{{ cat.icon_class }} me-1 text-primary"></i> {{ cat.name }} ({{ cat.notes_count }})
+                  </a>
+                {% endfor %}
+              </div>
+            </div>
+
+            <!-- Difficulty -->
+            <div class="mb-4">
+              <label class="form-label small fw-bold text-muted">Target Level</label>
+              <select name="difficulty" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="all" {% if current_difficulty == 'all' or not current_difficulty %}selected{% endif %}>All Levels</option>
+                <option value="beginner" {% if current_difficulty == 'beginner' %}selected{% endif %}>Beginner</option>
+                <option value="intermediate" {% if current_difficulty == 'intermediate' %}selected{% endif %}>Intermediate</option>
+                <option value="advanced" {% if current_difficulty == 'advanced' %}selected{% endif %}>Advanced</option>
+              </select>
+            </div>
+
+            <a href="{% url 'notes:marketplace' %}" class="btn btn-outline-secondary btn-sm w-100 rounded-pill">
+              Reset Filters
+            </a>
+          </form>
+        </div>
+      </div>
+
+      <!-- Notes Grid -->
+      <div class="col-lg-9">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h4 class="fw-bold mb-0 text-dark">
+            Available Study Packs <span class="text-primary">({{ total_count }})</span>
+          </h4>
+          <div class="d-flex align-items-center gap-2">
+            <span class="small text-muted d-none d-sm-inline">Sort:</span>
+            <form method="GET">
+              {% if selected_category %}<input type="hidden" name="category" value="{{ selected_category.slug }}">{% endif %}
+              {% if current_q %}<input type="hidden" name="q" value="{{ current_q }}">{% endif %}
+              <select name="sort" class="form-select form-select-sm" onchange="this.form.submit()">
+                <option value="featured" {% if current_sort == 'featured' %}selected{% endif %}>Featured First</option>
+                <option value="popular" {% if current_sort == 'popular' %}selected{% endif %}>Most Popular</option>
+                <option value="price_low" {% if current_sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                <option value="price_high" {% if current_sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+              </select>
+            </form>
+          </div>
+        </div>
+
+        <div class="row g-4">
+          {% for product in products %}
+            <div class="col-md-6">
+              <div class="card border-0 shadow-sm rounded-4 h-100 bg-white overflow-hidden d-flex flex-column ts-card">
+                <!-- Book Cover Preview Header -->
+                <div class="p-4 bg-dark text-white position-relative" style="background: linear-gradient(135deg, #0F172A 0%, #1E3A8A 100%);">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-warning text-dark fw-bold rounded-pill px-3 py-1" style="font-size: 0.72rem;">
+                      <i class="{{ product.category.icon_class }} me-1"></i> {{ product.category.name }}
+                    </span>
+                    <span class="text-warning small fw-bold"><i class="fas fa-star"></i> {{ product.average_rating }}</span>
+                  </div>
+                  
+                  <h5 class="fw-bold text-white mb-1">
+                    <a href="{{ product.get_absolute_url }}" class="text-white text-decoration-none">
+                      {{ product.title }}
+                    </a>
+                  </h5>
+                  <p class="text-white-50 small mb-0">{{ product.version }} • {{ product.get_difficulty_display }}</p>
+                </div>
+
+                <div class="p-4 d-flex flex-column flex-grow-1">
+                  <p class="text-secondary small mb-3 flex-grow-1" style="line-height: 1.6;">
+                    {{ product.short_description }}
+                  </p>
+
+                  <!-- Highlights Grid -->
+                  <div class="row g-2 text-center small py-2 mb-3 bg-light rounded-3 border">
+                    <div class="col-4 border-end">
+                      <div class="fw-bold text-primary">{{ product.total_chapters_count }}</div>
+                      <div class="text-muted" style="font-size: 0.72rem;">Chapters</div>
+                    </div>
+                    <div class="col-4 border-end">
+                      <div class="fw-bold text-success">{{ product.page_count_est }}+</div>
+                      <div class="text-muted" style="font-size: 0.72rem;">Pages Est.</div>
+                    </div>
+                    <div class="col-4">
+                      <div class="fw-bold text-warning">{{ product.interview_q_count }}+</div>
+                      <div class="text-muted" style="font-size: 0.72rem;">Interview Qs</div>
+                    </div>
+                  </div>
+
+                  <!-- Price & CTA Bar -->
+                  <div class="d-flex justify-content-between align-items-center mt-auto pt-2 border-top">
+                    <div>
+                      <div class="d-flex align-items-baseline gap-2">
+                        <span class="fs-4 fw-extrabold text-primary">₹{{ product.price }}</span>
+                        {% if product.original_price > product.price %}
+                          <span class="text-muted text-decoration-line-through small">₹{{ product.original_price }}</span>
+                          <span class="badge bg-success-subtle text-success small fw-bold" style="font-size: 0.7rem;">{{ product.discount_percent }}% OFF</span>
+                        {% endif %}
+                      </div>
+                      <small class="text-muted" style="font-size: 0.72rem;">Instant Unlock + PDF</small>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                      {% if product.id in user_purchased_product_ids %}
+                        <a href="{% url 'notes:reader' product_slug=product.slug %}" class="btn btn-success btn-sm rounded-pill px-3 fw-bold">
+                          <i class="fas fa-book-reader me-1"></i> Read Notes
+                        </a>
+                      {% else %}
+                        <a href="{{ product.get_absolute_url }}" class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-semibold">
+                          Preview
+                        </a>
+                        <a href="{% url 'notes:checkout' slug=product.slug %}" class="btn btn-ts-primary btn-sm rounded-pill px-3 fw-bold shadow-sm">
+                          Buy Now
+                        </a>
+                      {% endif %}
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          {% empty %}
+            <div class="col-12 text-center py-5">
+              <div class="p-5 bg-white rounded-4 border shadow-sm">
+                <i class="fas fa-search fs-1 text-muted mb-3"></i>
+                <h4>No study notes found</h4>
+                <p class="text-muted">Try adjusting your search keywords or resetting category filters.</p>
+                <a href="{% url 'notes:marketplace' %}" class="btn btn-primary rounded-pill px-4">View All Notes</a>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        <!-- Career Notes Bundles Section -->
+        {% if bundles %}
+          <div class="mt-5 pt-4" id="bundlesSection">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <div>
+                <span class="section-tag">Value Packs</span>
+                <h3 class="fw-bold text-dark mb-0">Career Notes Bundles (Save Up To 60%)</h3>
+              </div>
+              <span class="badge bg-warning text-dark fw-bold px-3 py-1 rounded-pill">Best Deal</span>
+            </div>
+            <p class="text-muted small mb-4">Get complete multi-subject study libraries bundled together at maximum savings.</p>
+
+            <div class="row g-4">
+              {% for bundle in bundles %}
+                <div class="col-md-6">
+                  <div class="card border-0 shadow-sm rounded-4 p-4 bg-white h-100 border-start border-4 border-warning">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                      <h5 class="fw-bold text-dark mb-1">{{ bundle.title }}</h5>
+                      <span class="badge bg-success fw-bold">{{ bundle.discount_percent }}% OFF</span>
+                    </div>
+                    <p class="text-secondary small mb-3">{{ bundle.short_description }}</p>
+
+                    <div class="mb-3">
+                      <small class="fw-bold text-dark d-block mb-1">Includes {{ bundle.products.count }} Complete Notes Packs:</small>
+                      <ul class="list-unstyled small mb-0 ps-1 d-flex flex-column gap-1 text-muted">
+                        {% for p in bundle.products.all %}
+                          <li><i class="fas fa-check text-success me-2"></i> {{ p.title }} (₹{{ p.price }})</li>
+                        {% endfor %}
+                      </ul>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mt-auto pt-3 border-top">
+                      <div>
+                        <div class="fs-4 fw-extrabold text-primary">₹{{ bundle.price }}</div>
+                        <span class="text-muted text-decoration-line-through small">₹{{ bundle.original_price }}</span>
+                        <small class="text-success fw-bold ms-1">Save ₹{{ bundle.savings_amount }}</small>
+                      </div>
+
+                      <a href="{% url 'notes:bundle_checkout' slug=bundle.slug %}" class="btn btn-ts-primary btn-sm rounded-pill px-4 fw-bold shadow">
+                        Buy Bundle Pack
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

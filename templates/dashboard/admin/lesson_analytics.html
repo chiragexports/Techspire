@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+
+{% block title %}Lesson Telemetry & Drop-Off Analytics: {{ course.title }} - TECHSPIRE Admin{% endblock %}
+
+{% block content %}
+<div class="py-4 bg-light min-vh-75">
+  <div class="container-fluid px-lg-5">
+
+    <!-- Breadcrumb & Header -->
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+      <div>
+        <nav aria-label="breadcrumb">
+          <ol class="breadcrumb mb-1 small">
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:admin_overview' %}">Admin Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'dashboard:admin_course_analytics' %}">Course Analytics</a></li>
+            <li class="breadcrumb-item active">{{ course.title|truncatewords:4 }}</li>
+          </ol>
+        </nav>
+        <h2 class="h3 fw-bold text-dark mb-0"><i class="fas fa-layer-group text-primary me-2"></i>Lesson Telemetry & Drop-Off Analytics</h2>
+        <small class="text-muted">Course: <strong>{{ course.title }}</strong> • {{ total_enrolled }} Total Enrolled Learners</small>
+      </div>
+
+      <div class="d-flex gap-2">
+        <a href="{% url 'dashboard:admin_lesson_create' course_id=course.id %}" class="btn btn-warning btn-sm fw-bold text-dark rounded-pill px-3">
+          <i class="fas fa-plus me-1"></i> Add New Lesson
+        </a>
+        <a href="{% url 'dashboard:admin_course_analytics' %}" class="btn btn-outline-secondary btn-sm rounded-pill px-3">
+          <i class="fas fa-arrow-left me-1"></i> Course Analytics
+        </a>
+      </div>
+    </div>
+
+    <!-- Modules and Lessons Telemetry Accordion -->
+    <div class="d-flex flex-column gap-4">
+      {% for mod in modules_data %}
+        <div class="card border-0 shadow-sm rounded-4 overflow-hidden bg-white">
+          <div class="card-header bg-dark text-white p-3 d-flex justify-content-between align-items-center" style="background-color: #0F172A !important;">
+            <div>
+              <span class="badge bg-primary text-uppercase me-2">Module {{ mod.module.order }}</span>
+              <span class="fw-bold">{{ mod.module.title }}</span>
+            </div>
+            <small class="text-white-50">{{ mod.lessons|length }} Lessons</small>
+          </div>
+
+          <div class="table-responsive">
+            <table class="table table-hover align-middle small mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Order</th>
+                  <th>Lesson Title</th>
+                  <th>Duration</th>
+                  <th>Unique Learners Viewed</th>
+                  <th>Learners Completed</th>
+                  <th>Completion Rate</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for l_item in mod.lessons %}
+                  <tr>
+                    <td class="font-monospace text-muted">L{{ l_item.lesson.order }}</td>
+                    <td>
+                      <div class="fw-bold text-dark">{{ l_item.lesson.title }}</div>
+                      {% if l_item.lesson.is_preview %}
+                        <span class="badge bg-info-subtle text-info" style="font-size: 0.65rem;">Free Preview</span>
+                      {% endif %}
+                    </td>
+                    <td><i class="far fa-clock text-muted me-1"></i>{{ l_item.lesson.duration_minutes }}m</td>
+                    <td><span class="badge bg-primary-subtle text-primary fs-6">{{ l_item.viewed_count }}</span></td>
+                    <td><span class="badge bg-success-subtle text-success fs-6">{{ l_item.completed_count }}</span></td>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <div class="progress flex-grow-1" style="height: 6px; width: 70px;">
+                          <div class="progress-bar bg-success" role="progressbar" style="width: {{ l_item.completion_pct }}%;"></div>
+                        </div>
+                        <span class="fw-bold">{{ l_item.completion_pct }}%</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div class="d-flex gap-1">
+                        <a href="{% url 'dashboard:admin_lesson_edit' course_id=course.id lesson_id=l_item.lesson.id %}" class="btn btn-sm btn-outline-primary py-0 px-2" title="Edit Notes & Exercise">
+                          <i class="fas fa-edit me-1"></i> Edit Notes
+                        </a>
+                        <a href="{% url 'enrollments:lesson_view' course_slug=course.slug lesson_id=l_item.lesson.id %}" class="btn btn-sm btn-outline-secondary py-0 px-2" target="_blank" title="View in Learning Reader">
+                          <i class="fas fa-external-link-alt"></i>
+                        </a>
+                      </div>
+                    </td>
+                  </tr>
+                {% empty %}
+                  <tr><td colspan="7" class="text-center py-3 text-muted">No lessons in this module.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      {% empty %}
+        <div class="card border-0 shadow-sm rounded-4 p-5 bg-white text-center text-muted">
+          <i class="fas fa-layer-group fs-2 mb-2"></i>
+          <h5>No Modules in this course yet</h5>
+          <p class="small">Add modules and lessons using the Content Management menu.</p>
+        </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</div>
+{% endblock %}
